@@ -1,0 +1,106 @@
+# CodeRabbit Configuration
+# Documentation: https://docs.coderabbit.ai/configuration
+
+# Enable or disable CodeRabbit
+enable: true
+
+# Language settings
+language: 
+  - python
+  - javascript
+  - typescript
+
+# Review settings
+reviews:
+  # Review pull requests
+  pull_requests:
+    enabled: true
+    
+  # Review commits
+  commits:
+    enabled: true
+    
+  # Review code changes
+  code_suggestions:
+    enabled: true
+    
+  # Review documentation
+  documentation:
+    enabled: true
+
+# Paths to include/exclude
+paths:
+  include:
+    - backend/**/*.py
+    - frontend/src/**/*.{js,jsx}
+    - frontend/src/**/*.{ts,tsx}
+  exclude:
+    - node_modules/**
+    - venv/**
+    - __pycache__/**
+    - .git/**
+    - dist/**
+    - build/**
+    - *.min.js
+    - *.min.css
+
+# Review focus areas
+focus:
+  - code_quality
+  - security
+  - performance
+  - best_practices
+  - documentation
+  - testing
+
+# AI model settings
+model:
+  # Use GPT-4 for better reviews
+  provider: openai
+  temperature: 0.2
+
+# Comment settings
+comments:
+  # Maximum number of comments per review
+  max_comments: 50
+  
+  # Comment on minor issues
+  minor_issues: true
+  
+  # Comment on suggestions
+  suggestions: true
+
+# Auto-fix settings
+auto_fix:
+  # Enable auto-fix for simple issues
+  enabled: true
+  
+  # Auto-fix types
+  types:
+    - formatting
+    - linting
+    - simple_refactoring
+
+# Ignore patterns
+ignore:
+  - "*.test.js"
+  - "*.spec.js"
+  - "__pycache__"
+  - "migrations"
+
+# Custom instructions
+instructions: |
+  This is a Job Tracker application with:
+  - Backend: Django REST Framework
+  - Frontend: Next.js with React 19
+  - Database: SQLite
+  
+  Please focus on:
+  1. Django best practices
+  2. React/Next.js best practices
+  3. API design patterns
+  4. Security considerations
+  5. Performance optimizations
+  6. Code maintainability
+  
+  Be constructive and provide actionable feedback.

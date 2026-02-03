@@ -7,6 +7,7 @@ A modern, full-stack web application for tracking job applications, managing int
 ![Django](https://img.shields.io/badge/django-5.0.7-green.svg)
 ![Next.js](https://img.shields.io/badge/next.js-15.3.0-black.svg)
 ![React](https://img.shields.io/badge/react-19.0.0-blue.svg)
+[![CodeRabbit](https://img.shields.io/badge/CodeRabbit-Enabled-brightgreen)](https://coderabbit.ai)
 
 ## 🚀 Features
 
@@ -75,6 +76,45 @@ npm run test:ci
 
 📖 See [TESTING.md](TESTING.md) for detailed testing documentation and [TEST_SUMMARY.md](TEST_SUMMARY.md) for current test results.  
 📁 All tests are in the [`tests/`](tests/) directory at the project root.
+
+## 🤖 Code Quality & Reviews
+
+This project uses **CodeRabbit** for automated AI-powered code reviews on pull requests.
+
+### CodeRabbit Features
+- ✅ **Automated Code Reviews**: AI-powered reviews on every PR
+- ✅ **Security Scanning**: Identifies security vulnerabilities
+- ✅ **Best Practices**: Suggests improvements following Django/React patterns
+- ✅ **Performance Analysis**: Optimizes code for better performance
+- ✅ **Documentation Review**: Ensures code is well-documented
+- ✅ **Auto-fix Suggestions**: Provides fix suggestions for common issues
+
+### Setup CodeRabbit
+
+1. **Install CodeRabbit GitHub App**:
+   - Go to [CodeRabbit App](https://github.com/apps/coderabbitai)
+   - Click "Install" and select this repository
+   - Grant necessary permissions
+
+2. **Configuration**:
+   - Configuration file: `.coderabbit.yaml` (already included)
+   - Customize settings as needed
+
+3. **Optional: GitHub Actions**:
+   - For advanced features, set up the workflow in `.github/coderabbit.yml`
+   - Requires `OPENAI_API_KEY` secret (optional, uses default model if not set)
+
+### How It Works
+
+CodeRabbit automatically reviews:
+- All pull requests
+- Code changes in Python and JavaScript/TypeScript
+- Security issues
+- Performance optimizations
+- Code quality improvements
+- Documentation completeness
+
+📖 See [CODERABBIT.md](CODERABBIT.md) for detailed setup and configuration.
 
 ## 📋 Prerequisites
 
@@ -397,10 +437,22 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+### Code Review
+
+All pull requests are automatically reviewed by **CodeRabbit**, an AI-powered code review tool that provides:
+- Code quality suggestions
+- Security vulnerability scanning
+- Performance optimization tips
+- Best practices enforcement
+- Documentation review
+
+Please address CodeRabbit's suggestions before requesting human review.
+
 ### Coding Standards
 - **Backend**: Follow PEP 8 style guide
 - **Frontend**: Use Prettier for formatting
 - **Commits**: Use conventional commit messages
+- **Tests**: Ensure all tests pass before submitting PR
 
 ## 🐛 Known Issues
 

@@ -77,6 +77,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection (Django ORM)
 - XSS protection (React)
 
+## [1.4.0] - 2026-02-03
+
+### Added
+- **CodeRabbit Integration**
+  - AI-powered automated code reviews on pull requests
+  - Configuration file: `.coderabbit.yaml`
+  - GitHub Actions workflow: `.github/coderabbit.yml`
+  - Security scanning and vulnerability detection
+  - Performance optimization suggestions
+  - Best practices enforcement
+  - Auto-fix suggestions for common issues
+  - Comprehensive documentation in `CODERABBIT.md`
+
+### Features
+- Automated code reviews for all PRs
+- Django and React/Next.js best practices
+- Security vulnerability scanning
+- Performance analysis
+- Documentation review
+- Code quality improvements
+
 ## [1.3.0] - 2026-02-03
 
 ### Changed

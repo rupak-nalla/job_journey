@@ -1,0 +1,47 @@
+# CodeRabbit Configuration
+# 
+# Note: CodeRabbit primarily works through the GitHub App installation.
+# This workflow is optional and provides additional features.
+#
+# To enable CodeRabbit:
+# 1. Install the GitHub App: https://github.com/apps/coderabbitai
+# 2. The .coderabbit.yaml file will be automatically used
+#
+# This workflow can be used for advanced features or custom integrations.
+
+name: CodeRabbit Review (Optional)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: CodeRabbit Review
+        uses: coderabbitai/openai-pr-reviewer@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          # Review settings
+          review_simple_changes: true
+          review_comment_lgtm: false
+          path_filters: |
+            backend/**
+            frontend/src/**
+          ignore_files: |
+            *.test.js
+            *.spec.js
+            __pycache__/**
+            node_modules/**
+            venv/**

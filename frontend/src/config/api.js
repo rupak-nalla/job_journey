@@ -46,9 +46,18 @@ export const API_ENDPOINTS = {
 export const getAuthHeaders = (includeContentType = true) => {
   if (typeof window === 'undefined') return {};
   
-  const token = localStorage.getItem('access_token');
   const headers = {};
   
+  // Safely retrieve token from localStorage (may throw in restricted environments)
+  let token = null;
+  try {
+    token = localStorage.getItem('access_token');
+  } catch (error) {
+    // Log error but continue execution
+    console.warn('Failed to access localStorage:', error);
+  }
+  
+  // Only set Authorization header if token was successfully retrieved
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }

@@ -1,7 +1,7 @@
 # Generated migration to make user field required
 
 from django.db import migrations, models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 
 def delete_applications_without_user(apps, schema_editor):
@@ -34,6 +34,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('applications', '0007_add_user_to_job_application'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
@@ -47,7 +48,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=models.CASCADE,
                 related_name='job_applications',
-                to='auth.user',
+                to=settings.AUTH_USER_MODEL,
                 help_text='The user who owns this job application'
             ),
         ),

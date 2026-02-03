@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
 
   // Check if user is authenticated on mount
@@ -25,6 +26,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
+    // Prevent infinite recursion if already refreshing
+    if (isRefreshing) {
+      return;
+    }
+
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
@@ -56,6 +62,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshAccessToken = async () => {
+    // Prevent infinite recursion
+    if (isRefreshing) {
+      return;
+    }
+
+    setIsRefreshing(true);
     try {
       const refreshToken = localStorage.getItem('refresh_token');
       if (!refreshToken) {
@@ -74,13 +86,33 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('access_token', data.access);
-        await checkAuth();
+        
+        // Directly fetch user instead of calling checkAuth to avoid recursion
+        try {
+          const userResponse = await fetch(API_ENDPOINTS.GET_USER, {
+            headers: getAuthHeaders(),
+          });
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            setUser(userData);
+            setIsAuthenticated(true);
+          } else {
+            // If user fetch fails after refresh, logout
+            logout();
+          }
+        } catch (userError) {
+          console.error('Failed to fetch user after token refresh:', userError);
+          logout();
+        }
       } else {
         logout();
       }
     } catch (error) {
       console.error('Token refresh failed:', error);
       logout();
+    } finally {
+      setIsRefreshing(false);
     }
   };
 

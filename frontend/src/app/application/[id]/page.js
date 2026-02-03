@@ -305,7 +305,7 @@ export default function ApplicationDetail() {
     return (
       <div style={S.root}>
         <header style={S.topbar}>
-          <span style={S.backLink} onClick={() => router.push("/")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
+          <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
             <Icon name="arrowLeft" size={16} /> Back to Dashboard
           </span>
         </header>
@@ -325,7 +325,7 @@ export default function ApplicationDetail() {
     return (
       <div style={S.root}>
         <header style={S.topbar}>
-          <span style={S.backLink} onClick={() => router.push("/")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
+          <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
             <Icon name="arrowLeft" size={16} /> Back to Dashboard
           </span>
         </header>
@@ -333,7 +333,7 @@ export default function ApplicationDetail() {
           <div style={{ ...S.card, textAlign: "center", padding: 60 }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: "#1a1a2e" }}>Application Not Found</h2>
             <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 24 }}>This application does not exist or has been removed.</p>
-            <button style={S.btn("primary")} onClick={() => router.push("/")} onMouseEnter={(e) => (e.currentTarget.style.background = "#16213e")} onMouseLeave={(e) => (e.currentTarget.style.background = "#1a1a2e")}>
+            <button style={S.btn("primary")} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.background = "#16213e")} onMouseLeave={(e) => (e.currentTarget.style.background = "#1a1a2e")}>
               <Icon name="arrowLeft" size={16} color="#fff" /> Back to Dashboard
             </button>
           </div>
@@ -346,7 +346,7 @@ export default function ApplicationDetail() {
     <div style={S.root}>
       {/* Top Bar */}
       <header style={S.topbar}>
-        <span style={S.backLink} onClick={() => router.push("/")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
+        <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
           <Icon name="arrowLeft" size={16} /> Back to Dashboard
         </span>
       </header>

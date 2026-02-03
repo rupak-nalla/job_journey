@@ -1,5 +1,6 @@
 from django.db import models
-from django.utils.timezone import now
+from django.utils import timezone
+from datetime import date as date_func
 
 class JobApplication(models.Model):
     STATUS_CHOICES = [
@@ -11,7 +12,7 @@ class JobApplication(models.Model):
 
     company = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
-    applied_date = models.DateField(default=now)
+    applied_date = models.DateField(default=date_func.today)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Applied")
     resume = models.FileField(upload_to="resumes/", blank=True, null=True)
     

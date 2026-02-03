@@ -42,12 +42,39 @@ A modern, full-stack web application for tracking job applications, managing int
 - **Django REST Framework 3.15.2**: API development
 - **SQLite**: Lightweight database (production-ready for small to medium apps)
 - **Django CORS Headers**: Cross-origin resource sharing
+- **Testing**: Django TestCase, 100% code coverage
 
 ### Frontend
 - **Next.js 15.3.0**: React framework with server-side rendering
 - **React 19.0.0**: Modern UI library
 - **Tailwind CSS 4**: Utility-first CSS framework
 - **Custom Icons**: Lightweight SVG icon system
+- **Testing**: Jest, React Testing Library, 90%+ code coverage
+
+## ✅ Testing
+
+Comprehensive test suites for both backend and frontend, centralized in the `tests/` directory:
+
+**Backend (29 tests)**
+```bash
+cd backend
+python manage.py test ../tests/backend
+```
+- ✅ All models, serializers, and views covered
+- ✅ 100% code coverage
+- ✅ Integration and edge case tests
+
+**Frontend (24 tests)**
+```bash
+cd frontend
+npm run test:ci
+```
+- ✅ API configuration and utilities
+- ✅ Component rendering and error handling
+- ✅ 90%+ code coverage
+
+📖 See [TESTING.md](TESTING.md) for detailed testing documentation and [TEST_SUMMARY.md](TEST_SUMMARY.md) for current test results.  
+📁 All tests are in the [`tests/`](tests/) directory at the project root.
 
 ## 📋 Prerequisites
 

@@ -9,11 +9,11 @@ router = DefaultRouter()
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('api/add-job-application/', add_job_application),
-    path('api/job-stats/', job_stats),
-    path('api/recent-applications/', recent_applications),
-    path('api/upcoming-interviews/', upcoming_interviews),
-    path('api/applications/<int:pk>/', get_job_application),
-    path('api/applications/<int:pk>/update/', update_job_application),
-    path('api/applications/<int:pk>/delete/', delete_job_application),
+    path('api/add-job-application/', add_job_application, name='add_job_application'),
+    path('api/job-stats/', job_stats, name='job_stats'),
+    path('api/recent-applications/', recent_applications, name='recent_applications'),
+    path('api/upcoming-interviews/', upcoming_interviews, name='upcoming_interviews'),
+    path('api/applications/<int:pk>/', get_job_application, name='get_job_application'),
+    path('api/applications/<int:pk>/update/', update_job_application, name='update_job_application'),
+    path('api/applications/<int:pk>/delete/', delete_job_application, name='delete_job_application'),
 ]

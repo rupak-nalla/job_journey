@@ -77,6 +77,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection (Django ORM)
 - XSS protection (React)
 
+## [1.3.0] - 2026-02-03
+
+### Changed
+- **Centralized Tests in Root Directory**
+  - All tests moved to single `tests/` folder at project root
+  - Structure: `tests/backend/` and `tests/frontend/`
+  - Backend: `tests/backend/applications/test_models.py`
+  - Frontend: `tests/frontend/config/test_api.js`
+  - Updated Jest configuration for new test location
+  - Updated CI/CD pipeline for new test paths
+  - Cleaner monorepo structure with centralized testing
+
+### Added
+- `tests/README.md` - Overview of centralized test structure
+
+## [1.2.0] - 2026-02-03
+
+### Changed
+- **Reorganized Test Structure**
+  - Tests in separate folders mirroring repository structure
+  - Each test file corresponds to its source file
+  - Added TEST_STRUCTURE.md documentation
+
+### Added
+- TEST_STRUCTURE.md - Comprehensive guide to test organization
+- Placeholder tests for page components with TODO comments
+
+## [1.1.0] - 2026-02-03
+
+### Added
+- **Comprehensive Testing Suite**
+  - Backend: 29 tests with 100% code coverage
+  - Frontend: 24 tests with 90%+ code coverage
+  - Django TestCase for backend testing
+  - Jest and React Testing Library for frontend
+  - Automated CI/CD testing with GitHub Actions
+  
+- **Testing Documentation**
+  - TESTING.md: Complete testing guide
+  - TEST_SUMMARY.md: Current test results and metrics
+  - Test execution instructions for both platforms
+  - Coverage reporting setup
+  
+- **Improved CI/CD**
+  - Frontend test execution in pipeline
+  - Backend test execution with verbosity
+  - Test-before-deploy workflow
+  - Dependency caching for faster builds
+
+### Changed
+- Updated README with testing information
+- Enhanced CI/CD pipeline to include automated testing
+- Improved error handling in ErrorBoundary component
+- Fixed date/datetime handling in models
+
+### Fixed
+- Applied date field now uses date.today() instead of timezone.now()
+- URL patterns now have proper names for reverse lookups
+- Frontend tests now compatible with React 19
+- Color utility tests updated to match implementation
+
 ## [Unreleased]
 
 ### Planned
@@ -112,4 +173,4 @@ Each release includes:
 
 ---
 
-[1.0.0]: https://github.com/yourusername/job-tracker/releases/tag/v1.0.0
+[1.0.0]: https://https://github.com/rupak-nalla/job_tracker/releases/tag/v1.0.0

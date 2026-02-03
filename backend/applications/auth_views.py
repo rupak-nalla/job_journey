@@ -34,8 +34,15 @@ def register(request):
             )
 
         # Validate password using Django's validators
+        # Create unsaved User instance to enable similarity checks
+        unsaved_user = User(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name
+        )
         try:
-            validate_password(password, user=None)
+            validate_password(password, user=unsaved_user)
         except DjangoValidationError as e:
             return Response(
                 {'error': ' '.join(e.messages)},
@@ -87,7 +94,7 @@ def register(request):
             {'error': 'User already exists'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    except Exception as e:
+    except Exception:
         logger.exception('Error during user registration')
         return Response(
             {'error': 'An error occurred processing your request'},
@@ -142,7 +149,7 @@ def login(request):
             }
         }, status=status.HTTP_200_OK)
 
-    except Exception as e:
+    except Exception:
         logger.exception('Error during user login')
         return Response(
             {'error': 'An error occurred'},
@@ -165,7 +172,7 @@ def logout(request):
             {'message': 'Logout successful'},
             status=status.HTTP_200_OK
         )
-    except Exception as e:
+    except Exception:
         logger.exception('Error during user logout')
         return Response(
             {'error': 'An error occurred'},

@@ -24,10 +24,10 @@ def check_no_duplicate_job_applications(apps, schema_editor):
             f"User {d['user_id']}, Company '{d['company']}', Position '{d['position']}' ({d['count']} duplicates)"
             for d in duplicate_list
         ]
+        error_text = "\n".join(error_messages)
         raise RuntimeError(
-            f"Found duplicate job applications that violate the unique constraint:\n" +
-            "\n".join(error_messages) +
-            "\n\nPlease remove or consolidate duplicates before running this migration."
+            f"Found duplicate job applications that violate the unique constraint:\n{error_text}\n\n"
+            "Please remove or consolidate duplicates before running this migration."
         )
 
 

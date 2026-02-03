@@ -4,6 +4,7 @@ Tests for authentication API views
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -227,14 +228,19 @@ class AuthViewsTestCase(TestCase):
         }
         response = self.client.post(self.logout_url, data, format='json')
         
-        # Logout should succeed even if blacklist fails (blacklist might not be configured)
-        # The endpoint returns 200 on success or 400 if there's an error
-        # We check that it either succeeds or returns an error message
-        self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST])
-        if response.status_code == status.HTTP_200_OK:
+        # Check if token blacklisting is enabled
+        blacklist_enabled = (
+            'rest_framework_simplejwt.token_blacklist' in settings.INSTALLED_APPS and
+            getattr(settings, 'SIMPLE_JWT', {}).get('BLACKLIST_AFTER_ROTATION', False)
+        )
+        
+        if blacklist_enabled:
+            # If blacklisting is enabled, logout should succeed
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertIn('message', response.data)
         else:
-            # If blacklist is not configured, we get an error but that's acceptable
+            # If blacklisting is not configured, we expect an error
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertIn('error', response.data)
     
     def test_logout_without_token(self):

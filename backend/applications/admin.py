@@ -49,7 +49,9 @@ class InterviewAdmin(admin.ModelAdmin):
     
     def get_user(self, obj):
         """Display the user who owns the application"""
-        return obj.job_application.user.username
+        if obj and obj.job_application and obj.job_application.user:
+            return obj.job_application.user.username
+        return '-'
     get_user.short_description = 'User'
     get_user.admin_order_field = 'job_application__user'
     

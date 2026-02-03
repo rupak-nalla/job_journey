@@ -46,6 +46,15 @@ const Icon = ({ name, size = 18, color = "currentColor", className = "" }) => {
   );
 };
 
+// ─── Helper Functions ───────────────────────────────────────
+const getLocalISODate = (d = new Date()) => {
+  // Get local date string in YYYY-MM-DD format
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // ─── Main Dashboard ──────────────────────────────────────────
 export default function JobTrackingDashboard() {
   const router = useRouter();
@@ -63,7 +72,7 @@ export default function JobTrackingDashboard() {
   const [error, setError] = useState(null);
   const [interviewModal, setInterviewModal] = useState(null);
   const [interviewData, setInterviewData] = useState({
-    date: new Date().toISOString().split("T")[0],
+    date: getLocalISODate(),
     time: "10:00",
     type: "Technical",
   });
@@ -214,7 +223,7 @@ export default function JobTrackingDashboard() {
       
       // Reset interview data
       setInterviewData({
-        date: new Date().toISOString().split("T")[0],
+        date: getLocalISODate(),
         time: "10:00",
         type: "Technical",
       });

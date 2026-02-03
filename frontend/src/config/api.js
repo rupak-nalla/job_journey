@@ -23,14 +23,41 @@ const getApiBaseUrl = () => {
 export const API_BASE_URL = getApiBaseUrl();
 
 export const API_ENDPOINTS = {
+  // Authentication
+  REGISTER: `${API_BASE_URL}/api/auth/register/`,
+  LOGIN: `${API_BASE_URL}/api/auth/login/`,
+  LOGOUT: `${API_BASE_URL}/api/auth/logout/`,
+  GET_USER: `${API_BASE_URL}/api/auth/user/`,
+  REFRESH_TOKEN: `${API_BASE_URL}/api/auth/refresh/`,
+  
+  // Job Applications
   JOB_STATS: `${API_BASE_URL}/api/job-stats/`,
   RECENT_APPLICATIONS: `${API_BASE_URL}/api/recent-applications/`,
   UPCOMING_INTERVIEWS: `${API_BASE_URL}/api/upcoming-interviews/`,
+  INTERVIEW_STATS: `${API_BASE_URL}/api/interview-stats/`,
   ADD_JOB_APPLICATION: `${API_BASE_URL}/api/add-job-application/`,
   GET_JOB_APPLICATION: (id) => `${API_BASE_URL}/api/applications/${id}/`,
   UPDATE_JOB_APPLICATION: (id) => `${API_BASE_URL}/api/applications/${id}/update/`,
   DELETE_JOB_APPLICATION: (id) => `${API_BASE_URL}/api/applications/${id}/delete/`,
   MEDIA_BASE: API_BASE_URL,
+};
+
+// Helper function to get auth headers
+export const getAuthHeaders = (includeContentType = true) => {
+  if (typeof window === 'undefined') return {};
+  
+  const token = localStorage.getItem('access_token');
+  const headers = {};
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  if (includeContentType) {
+    headers['Content-Type'] = 'application/json';
+  }
+  
+  return headers;
 };
 
 // Helper function to handle API errors

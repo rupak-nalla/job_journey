@@ -8,10 +8,6 @@ const nextConfig = {
     unoptimized: false,
   },
 
-  // Allow development origins
-  experimental: {
-    allowedDevOrigins: ['192.168.1.5'],
-  },
 
   // For standalone Docker builds
   output: 'standalone',

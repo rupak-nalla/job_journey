@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { API_ENDPOINTS } from "@/config/api";
+import { API_ENDPOINTS, getAuthHeaders } from "@/config/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ─── Icons (matching dashboard) ───────────────────────────────
 const Icon = ({ name, size = 18, color = "currentColor", style }) => {
@@ -26,6 +27,7 @@ const Icon = ({ name, size = 18, color = "currentColor", style }) => {
 export default function ApplicationDetail() {
   const params = useParams();
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [application, setApplication] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -37,10 +39,39 @@ export default function ApplicationDetail() {
     type: "Technical",
   });
 
+  // Redirect to login if not authenticated
   useEffect(() => {
-    fetchApplication();
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      fetchApplication();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id]);
+  }, [params.id, isAuthenticated, authLoading]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f8f9fa',
+      }}>
+        <div style={{ fontSize: '16px', color: '#6b7280' }}>Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const fetchApplication = async () => {
     setIsLoading(true);
@@ -101,9 +132,7 @@ export default function ApplicationDetail() {
 
       const response = await fetch(API_ENDPOINTS.UPDATE_JOB_APPLICATION(params.id), {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(submitData),
       });
 
@@ -125,11 +154,12 @@ export default function ApplicationDetail() {
     try {
       const response = await fetch(API_ENDPOINTS.DELETE_JOB_APPLICATION(params.id), {
         method: "DELETE",
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) throw new Error("Failed to delete application");
       
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error deleting application:", error);
       alert("Failed to delete application. Please try again.");

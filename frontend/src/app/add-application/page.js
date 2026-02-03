@@ -25,33 +25,7 @@ export default function AddJobApplication() {
   const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
   
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace('/login');
-    }
-  }, [authLoading, isAuthenticated, router]);
-
-  // Show loading while checking auth
-  if (authLoading) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#f8f9fa',
-      }}>
-        <div style={{ fontSize: '16px', color: '#6b7280' }}>Loading...</div>
-      </div>
-    );
-  }
-
-  // Don't render if not authenticated (will redirect)
-  if (!isAuthenticated) {
-    return null;
-  }
-
+  // All hooks must be called before any conditional returns
   const [formData, setFormData] = useState({
     company: "",
     position: "",
@@ -74,6 +48,35 @@ export default function AddJobApplication() {
   const [showInterviewFields, setShowInterviewFields] = useState(false);
   const [resumeFileName, setResumeFileName] = useState("");
   const [dragActive, setDragActive] = useState(false);
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}>
+        <div style={{ background: '#fff', borderRadius: 16, padding: '40px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+          <div style={{ fontSize: '16px', color: '#6b7280' }}>Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -177,7 +180,7 @@ export default function AddJobApplication() {
       setSubmitMessage({ text: "Application added successfully!", isError: false });
       
       setTimeout(() => {
-        router.push("/");
+        router.push("/dashboard");
       }, 1500);
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -192,26 +195,30 @@ export default function AddJobApplication() {
 
   const statusOptions = ["Applied", "Ghosted", "Interviewing", "Assessment"];
 
-  // ── Styles (matching dashboard) ──
+  // ── Styles (matching login/register) ──
   const S = {
     root: {
       minHeight: "100vh",
-      background: "#f8f9fa",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-      color: "#1a1a2e",
+      color: "#1f2937",
+      padding: "20px",
     },
     topbar: {
-      background: "#fff",
-      borderBottom: "1px solid #e8eaed",
+      background: "rgba(255, 255, 255, 0.95)",
+      backdropFilter: "blur(10px)",
+      borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
       padding: "0 40px",
       height: 72,
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       position: "sticky",
-      top: 0,
+      top: 20,
       zIndex: 10,
-      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+      borderRadius: "16px",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+      marginBottom: "20px",
     },
     backLink: {
       display: "inline-flex",
@@ -225,46 +232,63 @@ export default function AddJobApplication() {
       transition: "opacity 0.2s",
       cursor: "pointer",
     },
-    container: { maxWidth: 720, margin: "0 auto", padding: "32px 24px 80px" },
-    header: { marginBottom: 32 },
-    title: { fontSize: 28, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px", marginBottom: 6 },
-    subtitle: { fontSize: 13, color: "#9ca3af" },
+    container: { maxWidth: 800, margin: "0 auto", padding: "0" },
+    header: { marginBottom: 32, textAlign: "center" },
+    title: { fontSize: 28, fontWeight: "bold", color: "#1f2937", marginBottom: 8 },
+    subtitle: { fontSize: 14, color: "#6b7280" },
     alert: (isError) => ({
-      background: isError ? "#fef2f2" : "#f0fdf4",
+      background: isError ? "#fee2e2" : "#f0fdf4",
       border: `1px solid ${isError ? "#fecaca" : "#bbf7d0"}`,
-      borderRadius: 10,
-      padding: "14px 18px",
-      marginBottom: 24,
+      borderRadius: 8,
+      padding: "12px",
+      marginBottom: 20,
       display: "flex",
       alignItems: "center",
       gap: 12,
-      fontSize: 13,
-      color: isError ? "#991b1b" : "#166534",
+      fontSize: 14,
+      color: isError ? "#dc2626" : "#166534",
       fontWeight: 500,
     }),
     card: {
       background: "#fff",
-      borderRadius: 14,
-      border: "1px solid #eee",
-      padding: 32,
+      borderRadius: 16,
+      border: "none",
+      padding: 40,
+      boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
     },
     form: { display: "flex", flexDirection: "column", gap: 24 },
     fieldGroup: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 },
     field: { display: "flex", flexDirection: "column", gap: 8 },
-    label: { fontSize: 12, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px" },
+    label: { fontSize: 14, fontWeight: 500, color: "#374151", marginBottom: 8, display: "block" },
     input: {
-      padding: "11px 14px",
-      border: "1px solid #e5e7eb",
+      width: "100%",
+      padding: "12px",
+      border: "1px solid #d1d5db",
       borderRadius: 8,
-      fontSize: 13,
-      color: "#1a1a2e",
+      fontSize: 16,
+      color: "#1f2937",
       outline: "none",
       transition: "all 0.2s",
       fontFamily: "inherit",
+      boxSizing: "border-box",
+    },
+    textarea: {
+      width: "100%",
+      padding: "12px",
+      border: "1px solid #d1d5db",
+      borderRadius: 8,
+      fontSize: 16,
+      color: "#1f2937",
+      outline: "none",
+      transition: "all 0.2s",
+      fontFamily: "inherit",
+      boxSizing: "border-box",
+      resize: "vertical",
+      minHeight: 100,
     },
     uploadZone: (active) => ({
-      border: `2px dashed ${active ? "#1a1a2e" : "#e5e7eb"}`,
-      borderRadius: 10,
+      border: `2px dashed ${active ? "#667eea" : "#d1d5db"}`,
+      borderRadius: 8,
       padding: 40,
       textAlign: "center",
       cursor: "pointer",
@@ -301,21 +325,20 @@ export default function AddJobApplication() {
     divider: { borderTop: "1px solid #f0f0f0", marginTop: 8 },
     submitBtn: (disabled) => ({
       width: "100%",
-      padding: "13px 24px",
-      background: disabled ? "#e5e7eb" : "#1a1a2e",
+      padding: "12px",
+      background: disabled ? "#9ca3af" : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       color: "#fff",
       border: "none",
       borderRadius: 8,
-      fontSize: 14,
+      fontSize: 16,
       fontWeight: 600,
       cursor: disabled ? "not-allowed" : "pointer",
-      transition: "background 0.2s",
+      transition: "all 0.2s",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       gap: 8,
-      letterSpacing: "0.2px",
-      marginTop: 8,
+      boxShadow: disabled ? "none" : "0 4px 12px rgba(102, 126, 234, 0.4)",
     }),
   };
 
@@ -325,7 +348,7 @@ export default function AddJobApplication() {
       <header style={S.topbar}>
         <span
           style={S.backLink}
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/dashboard")}
           onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
           onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
         >
@@ -335,22 +358,21 @@ export default function AddJobApplication() {
 
       {/* Main Content */}
       <main style={S.container}>
-        {/* Header */}
-        <div style={S.header}>
-          <h1 style={S.title}>Add New Application</h1>
-          <p style={S.subtitle}>Fill in the details of your job application</p>
-        </div>
-
-        {/* Alert Message */}
-        {submitMessage.text && (
-          <div style={S.alert(submitMessage.isError)}>
-            <Icon name={submitMessage.isError ? "alert" : "check"} size={18} color={submitMessage.isError ? "#991b1b" : "#166534"} />
-            <span>{submitMessage.text}</span>
-          </div>
-        )}
-
         {/* Form Card */}
         <div style={S.card}>
+          {/* Header */}
+          <div style={S.header}>
+            <h1 style={S.title}>Add New Application</h1>
+            <p style={S.subtitle}>Fill in the details of your job application</p>
+          </div>
+
+          {/* Alert Message */}
+          {submitMessage.text && (
+            <div style={S.alert(submitMessage.isError)}>
+              <Icon name={submitMessage.isError ? "alert" : "check"} size={18} color={submitMessage.isError ? "#dc2626" : "#166534"} />
+              <span>{submitMessage.text}</span>
+            </div>
+          )}
           <form onSubmit={handleSubmit} style={S.form}>
             {/* Company & Position */}
             <div style={S.fieldGroup}>
@@ -365,8 +387,8 @@ export default function AddJobApplication() {
                   required
                   placeholder="e.g., Google"
                   style={S.input}
-                  onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                 />
               </div>
 
@@ -381,8 +403,8 @@ export default function AddJobApplication() {
                   required
                   placeholder="e.g., Senior Frontend Engineer"
                   style={S.input}
-                  onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                 />
               </div>
             </div>
@@ -398,8 +420,8 @@ export default function AddJobApplication() {
                   onChange={handleChange}
                   required
                   style={S.input}
-                  onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                 >
                   {statusOptions.map((status) => (
                     <option key={status} value={status}>{status}</option>
@@ -417,8 +439,8 @@ export default function AddJobApplication() {
                   onChange={handleChange}
                   required
                   style={S.input}
-                  onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                 />
               </div>
             </div>
@@ -473,8 +495,8 @@ export default function AddJobApplication() {
                 rows={4}
                 placeholder="Paste or type the job description here..."
                 style={S.textarea}
-                onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
               />
             </div>
 
@@ -490,8 +512,8 @@ export default function AddJobApplication() {
                   onChange={handleChange}
                   placeholder="recruiter@company.com"
                   style={S.input}
-                  onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                 />
               </div>
 
@@ -505,8 +527,8 @@ export default function AddJobApplication() {
                   onChange={handleChange}
                   placeholder="+1 (555) 123-4567"
                   style={S.input}
-                  onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                 />
               </div>
             </div>
@@ -536,8 +558,8 @@ export default function AddJobApplication() {
                 rows={3}
                 placeholder="Add any additional notes or reminders..."
                 style={S.textarea}
-                onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
               />
             </div>
 
@@ -558,8 +580,8 @@ export default function AddJobApplication() {
                       value={interviewData.date}
                       onChange={handleChange}
                       style={S.input}
-                      onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                      onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                      onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                      onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                     />
                   </div>
 
@@ -572,8 +594,8 @@ export default function AddJobApplication() {
                       value={interviewData.time}
                       onChange={handleChange}
                       style={S.input}
-                      onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                      onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                      onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                      onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                     />
                   </div>
 
@@ -585,8 +607,8 @@ export default function AddJobApplication() {
                       value={interviewData.type}
                       onChange={handleChange}
                       style={S.input}
-                      onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                      onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                      onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                      onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                     >
                       <option value="Technical">Technical</option>
                       <option value="HR">HR</option>
@@ -603,8 +625,8 @@ export default function AddJobApplication() {
               type="submit"
               disabled={isSubmitting}
               style={S.submitBtn(isSubmitting)}
-              onMouseEnter={(e) => !isSubmitting && (e.currentTarget.style.background = "#16213e")}
-              onMouseLeave={(e) => !isSubmitting && (e.currentTarget.style.background = "#1a1a2e")}
+              onMouseEnter={(e) => !isSubmitting && (e.currentTarget.style.opacity = "0.9")}
+              onMouseLeave={(e) => !isSubmitting && (e.currentTarget.style.opacity = "1")}
             >
               {isSubmitting ? (
                 <>

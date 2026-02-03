@@ -269,22 +269,26 @@ export default function JobTrackingDashboard() {
   const S = {
     root: {
       minHeight: "100vh",
-      background: "#f8f9fa",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-      color: "#1a1a2e",
+      color: "#1f2937",
+      padding: "20px",
     },
     topbar: {
-      background: "#fff",
-      borderBottom: "1px solid #e8eaed",
+      background: "rgba(255, 255, 255, 0.95)",
+      backdropFilter: "blur(10px)",
+      borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
       padding: "0 40px",
       height: 72,
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       position: "sticky",
-      top: 0,
+      top: 20,
       zIndex: 10,
-      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+      borderRadius: "16px",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+      marginBottom: "20px",
     },
     logo: {
       display: "flex",
@@ -305,7 +309,7 @@ export default function JobTrackingDashboard() {
       display: "inline-flex",
       alignItems: "center",
       gap: 6,
-      background: "#1a1a2e",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       color: "#fff",
       border: "none",
       borderRadius: 8,
@@ -314,32 +318,35 @@ export default function JobTrackingDashboard() {
       fontWeight: 600,
       cursor: "pointer",
       letterSpacing: "0.2px",
-      transition: "background 0.2s",
+      transition: "all 0.2s",
+      boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
     },
-    container: { maxWidth: 1180, margin: "0 auto", padding: "32px 24px" },
+    container: { maxWidth: 1200, margin: "0 auto", padding: "0" },
     // Tabs
     tabRow: { display: "flex", gap: 4, marginBottom: 28 },
     tab: (active) => ({
       padding: "8px 20px",
-      borderRadius: 7,
+      borderRadius: 8,
       border: "none",
-      background: active ? "#1a1a2e" : "transparent",
+      background: active ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" : "transparent",
       color: active ? "#fff" : "#6b7280",
       fontSize: 13,
       fontWeight: 600,
       cursor: "pointer",
       letterSpacing: "0.3px",
       transition: "all 0.2s",
+      boxShadow: active ? "0 4px 12px rgba(102, 126, 234, 0.4)" : "none",
     }),
     // Stats Grid
     statsGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 },
     statCard: (accent) => ({
       background: "#fff",
-      borderRadius: 14,
-      padding: "22px 22px 20px",
-      border: "1px solid #eee",
+      borderRadius: 16,
+      padding: "24px",
+      border: "none",
       position: "relative",
       overflow: "hidden",
+      boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
     }),
     statAccent: (color) => ({
       position: "absolute",
@@ -355,7 +362,7 @@ export default function JobTrackingDashboard() {
     statLabel: { fontSize: 12, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 4 },
     statVal: { fontSize: 32, fontWeight: 700, color: "#1a1a2e", lineHeight: 1 },
     // Cards
-    card: { background: "#fff", borderRadius: 14, border: "1px solid #eee", overflow: "hidden" },
+    card: { background: "#fff", borderRadius: 16, border: "none", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", marginBottom: "20px" },
     cardHead: {
       padding: "18px 24px",
       borderBottom: "1px solid #f0f0f0",
@@ -388,7 +395,7 @@ export default function JobTrackingDashboard() {
     modalDesc: { fontSize: 13, color: "#6b7280", marginBottom: 24, lineHeight: 1.5 },
     modalBtns: { display: "flex", gap: 10, justifyContent: "center" },
     btnGhost: { padding: "8px 20px", borderRadius: 7, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer" },
-    btnDanger: { padding: "8px 20px", borderRadius: 7, border: "none", background: "#ef4444", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" },
+    btnDanger: { padding: "8px 20px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)" },
     // Interviews tab stats
     intStatsGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 28 },
     empty: { padding: "56px 24px", textAlign: "center" },
@@ -641,12 +648,14 @@ export default function JobTrackingDashboard() {
     return (
       <div style={S.root}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", flexDirection: "column", gap: 16 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f0f0f3", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon name="loader" size={22} color="#1a1a2e" />
-                      </div>
-          <p style={{ fontSize: 13, color: "#9ca3af", fontWeight: 600 }}>Loading your applications...</p>
-                    </div>
-                  </div>
+          <div style={{ background: "#fff", borderRadius: 16, padding: "40px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f0f0f3", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon name="loader" size={22} color="#1a1a2e" />
+            </div>
+            <p style={{ fontSize: 14, color: "#6b7280", fontWeight: 600 }}>Loading your applications...</p>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -654,9 +663,9 @@ export default function JobTrackingDashboard() {
     <div style={S.root}>
       {/* Error Message */}
       {error && (
-        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "14px 18px", margin: "20px 40px", display: "flex", alignItems: "center", gap: 12 }}>
-          <Icon name="alert" size={18} color="#991b1b" />
-          <span style={{ fontSize: 13, color: "#991b1b", fontWeight: 500 }}>{error}</span>
+        <div style={{ background: "#fee2e2", border: "1px solid #fecaca", borderRadius: 16, padding: "14px 18px", margin: "0 0 20px 0", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+          <Icon name="alert" size={18} color="#dc2626" />
+          <span style={{ fontSize: 14, color: "#dc2626", fontWeight: 500 }}>{error}</span>
                 </div>
               )}
 
@@ -675,8 +684,8 @@ export default function JobTrackingDashboard() {
           <button 
             style={S.addBtn} 
             onClick={() => router.push("/add-application")}
-            onMouseEnter={e => e.currentTarget.style.background = "#16213e"} 
-            onMouseLeave={e => e.currentTarget.style.background = "#1a1a2e"}
+            onMouseEnter={e => e.currentTarget.style.opacity = "0.9"} 
+            onMouseLeave={e => e.currentTarget.style.opacity = "1"}
           >
             <Icon name="plus" size={14} color="#fff" /> Add Application
           </button>
@@ -712,10 +721,11 @@ export default function JobTrackingDashboard() {
 
       {/* Body */}
       <main style={S.container}>
+        <div style={{ background: "#fff", borderRadius: 16, padding: "40px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
         {/* Page Title */}
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px", marginBottom: 4 }}>Dashboard</h1>
-          <p style={{ fontSize: 13, color: "#9ca3af" }}>Track and manage all your job applications in one place</p>
+        <div style={{ background: "#fff", borderRadius: 16, padding: "32px 40px", marginBottom: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+          <h1 style={{ fontSize: 28, fontWeight: "bold", color: "#1f2937", marginBottom: 8 }}>Dashboard</h1>
+          <p style={{ fontSize: 14, color: "#6b7280" }}>Track and manage all your job applications in one place</p>
         </div>
 
         {/* Tabs */}
@@ -731,6 +741,7 @@ export default function JobTrackingDashboard() {
         {activeTab === "overview" && renderOverview()}
         {activeTab === "applications" && renderApplications()}
         {activeTab === "interviews" && renderInterviews()}
+        </div>
       </main>
 
       {/* Delete Confirmation Modal */}
@@ -803,10 +814,10 @@ export default function JobTrackingDashboard() {
             <div style={S.modalBtns}>
               <button style={S.btnGhost} onClick={() => setInterviewModal(null)}>Cancel</button>
               <button 
-                style={{ ...S.btnDanger, background: "#4f46e5" }} 
+                style={S.btnDanger} 
                 onClick={handleInterviewSubmit}
-                onMouseEnter={e => e.currentTarget.style.background = "#4338ca"}
-                onMouseLeave={e => e.currentTarget.style.background = "#4f46e5"}
+                onMouseEnter={e => e.currentTarget.style.opacity = "0.9"}
+                onMouseLeave={e => e.currentTarget.style.opacity = "1"}
               >
                 Schedule Interview
               </button>

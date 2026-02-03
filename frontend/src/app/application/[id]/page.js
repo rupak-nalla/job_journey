@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { API_ENDPOINTS } from "@/config/api";
+import { API_ENDPOINTS, getAuthHeaders } from "@/config/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ─── Icons (matching dashboard) ───────────────────────────────
 const Icon = ({ name, size = 18, color = "currentColor", style }) => {
@@ -26,6 +27,7 @@ const Icon = ({ name, size = 18, color = "currentColor", style }) => {
 export default function ApplicationDetail() {
   const params = useParams();
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [application, setApplication] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -37,10 +39,39 @@ export default function ApplicationDetail() {
     type: "Technical",
   });
 
+  // Redirect to login if not authenticated
   useEffect(() => {
-    fetchApplication();
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      fetchApplication();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id]);
+  }, [params.id, isAuthenticated, authLoading]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f8f9fa',
+      }}>
+        <div style={{ fontSize: '16px', color: '#6b7280' }}>Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const fetchApplication = async () => {
     setIsLoading(true);
@@ -101,9 +132,7 @@ export default function ApplicationDetail() {
 
       const response = await fetch(API_ENDPOINTS.UPDATE_JOB_APPLICATION(params.id), {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(submitData),
       });
 
@@ -125,11 +154,12 @@ export default function ApplicationDetail() {
     try {
       const response = await fetch(API_ENDPOINTS.DELETE_JOB_APPLICATION(params.id), {
         method: "DELETE",
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) throw new Error("Failed to delete application");
       
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error deleting application:", error);
       alert("Failed to delete application. Please try again.");
@@ -275,7 +305,7 @@ export default function ApplicationDetail() {
     return (
       <div style={S.root}>
         <header style={S.topbar}>
-          <span style={S.backLink} onClick={() => router.push("/")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
+          <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
             <Icon name="arrowLeft" size={16} /> Back to Dashboard
           </span>
         </header>
@@ -295,7 +325,7 @@ export default function ApplicationDetail() {
     return (
       <div style={S.root}>
         <header style={S.topbar}>
-          <span style={S.backLink} onClick={() => router.push("/")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
+          <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
             <Icon name="arrowLeft" size={16} /> Back to Dashboard
           </span>
         </header>
@@ -303,7 +333,7 @@ export default function ApplicationDetail() {
           <div style={{ ...S.card, textAlign: "center", padding: 60 }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: "#1a1a2e" }}>Application Not Found</h2>
             <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 24 }}>This application does not exist or has been removed.</p>
-            <button style={S.btn("primary")} onClick={() => router.push("/")} onMouseEnter={(e) => (e.currentTarget.style.background = "#16213e")} onMouseLeave={(e) => (e.currentTarget.style.background = "#1a1a2e")}>
+            <button style={S.btn("primary")} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.background = "#16213e")} onMouseLeave={(e) => (e.currentTarget.style.background = "#1a1a2e")}>
               <Icon name="arrowLeft" size={16} color="#fff" /> Back to Dashboard
             </button>
           </div>
@@ -316,7 +346,7 @@ export default function ApplicationDetail() {
     <div style={S.root}>
       {/* Top Bar */}
       <header style={S.topbar}>
-        <span style={S.backLink} onClick={() => router.push("/")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
+        <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
           <Icon name="arrowLeft" size={16} /> Back to Dashboard
         </span>
       </header>

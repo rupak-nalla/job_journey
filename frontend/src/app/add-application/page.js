@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { API_ENDPOINTS } from "@/config/api";
+import { API_ENDPOINTS, getAuthHeaders } from "@/config/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ─── Icons (matching dashboard) ───────────────────────────────
 const Icon = ({ name, size = 18, color = "currentColor" }) => {
@@ -22,6 +23,35 @@ const Icon = ({ name, size = 18, color = "currentColor" }) => {
 
 export default function AddJobApplication() {
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f8f9fa',
+      }}>
+        <div style={{ fontSize: '16px', color: '#6b7280' }}>Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
+
   const [formData, setFormData] = useState({
     company: "",
     position: "",
@@ -132,8 +162,10 @@ export default function AddJobApplication() {
         submitData.append("interview_type", interviewData.type);
       }
 
+      // For FormData, don't include Content-Type header (browser sets it with boundary)
       const response = await fetch(API_ENDPOINTS.ADD_JOB_APPLICATION, {
         method: "POST",
+        headers: getAuthHeaders(false), // false = don't include Content-Type for FormData
         body: submitData,
       });
 

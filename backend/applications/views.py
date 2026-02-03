@@ -1,5 +1,6 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count
 from datetime import date
 from .models import JobApplication, Interview
@@ -7,12 +8,14 @@ from .serializers import JobApplicationSerializer, InterviewSerializer
 from rest_framework import status
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def add_job_application(request):
     try:
         resume_file = request.FILES.get('resume')  # Handle file
         data = request.data
 
         job = JobApplication.objects.create(
+            user=request.user,  # Link to authenticated user
             company=data.get("company"),
             position=data.get("position"),
             status=data.get("status"),
@@ -46,11 +49,14 @@ def add_job_application(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def job_stats(request):
-    stats = JobApplication.objects.values('status').annotate(count=Count('id'))
+    # Filter by authenticated user
+    user_applications = JobApplication.objects.filter(user=request.user)
+    stats = user_applications.values('status').annotate(count=Count('id'))
     summary = {s['status'].lower(): s['count'] for s in stats}
     data = {
-        "total": JobApplication.objects.count(),
+        "total": user_applications.count(),
         "applied": summary.get("applied", 0),
         "ghosted": summary.get("ghosted", 0),
         "interviewing": summary.get("interviewing", 0),
@@ -60,18 +66,63 @@ def job_stats(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def recent_applications(request):
-    applications = JobApplication.objects.order_by('-applied_date')
+    # Filter by authenticated user
+    applications = JobApplication.objects.filter(user=request.user).order_by('-applied_date')
     serializer = JobApplicationSerializer(applications, many=True)
     return Response(serializer.data)
 
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def upcoming_interviews(request):
-    interviews = Interview.objects.filter(date__gte=date.today()).order_by('date', 'time')[:5]
+    # Filter interviews by user's applications
+    user_applications = JobApplication.objects.filter(user=request.user)
+    interviews = Interview.objects.filter(
+        job_application__in=user_applications,
+        date__gte=date.today()
+    ).order_by('date', 'time')[:5]
     serializer = InterviewSerializer(interviews, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def interview_stats(request):
+    """Get interview statistics for the authenticated user"""
+    from datetime import timedelta
+    
+    user_applications = JobApplication.objects.filter(user=request.user)
+    
+    # Get all interviews for user's applications
+    all_interviews = Interview.objects.filter(job_application__in=user_applications)
+    
+    # Upcoming interviews (today and future)
+    upcoming_count = all_interviews.filter(date__gte=date.today()).count()
+    
+    # Completed interviews (in the last 30 days)
+    thirty_days_ago = date.today() - timedelta(days=30)
+    completed_count = all_interviews.filter(
+        date__lt=date.today(),
+        date__gte=thirty_days_ago
+    ).count()
+    
+    # Total interviews
+    total_count = all_interviews.count()
+    
+    # Calculate success rate (if we had offer data, but for now just return 0)
+    # This could be enhanced later to track offers/acceptances
+    success_rate = "0%"
+    
+    data = {
+        "upcoming": upcoming_count,
+        "completed": completed_count,
+        "total": total_count,
+        "success_rate": success_rate,
+    }
+    return Response(data)
 
 
 # views.py
@@ -83,18 +134,22 @@ def upcoming_interviews(request):
 # from .serializers import JobApplicationSerializer
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_job_application(request, pk):
     try:
-        job = JobApplication.objects.get(pk=pk)
+        # Ensure user can only access their own applications
+        job = JobApplication.objects.get(pk=pk, user=request.user)
         serializer = JobApplicationSerializer(job)
         return Response(serializer.data)
     except JobApplication.DoesNotExist:
         return Response({"error": "Job application not found"}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
 def update_job_application(request, pk):
     try:
-        job = JobApplication.objects.get(pk=pk)
+        # Ensure user can only update their own applications
+        job = JobApplication.objects.get(pk=pk, user=request.user)
     except JobApplication.DoesNotExist:
         return Response({"error": "Job application not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -105,7 +160,8 @@ def update_job_application(request, pk):
 
     serializer = JobApplicationSerializer(job, data=request.data, partial=(request.method == 'PATCH'))
     if serializer.is_valid():
-        updated_job = serializer.save()
+        # Ensure user cannot be changed - always use the original user
+        updated_job = serializer.save(user=request.user)
         
         # Handle interview data if status is Interviewing
         if updated_job.status == "Interviewing" and interview_date:
@@ -129,9 +185,11 @@ def update_job_application(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def delete_job_application(request, pk):
     try:
-        job = JobApplication.objects.get(pk=pk)
+        # Ensure user can only delete their own applications
+        job = JobApplication.objects.get(pk=pk, user=request.user)
         job.delete()
         return Response({"message": "Job application deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     except JobApplication.DoesNotExist:

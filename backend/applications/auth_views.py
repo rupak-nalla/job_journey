@@ -3,12 +3,16 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework.exceptions import ValidationError
 from django.db import IntegrityError
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 
 @api_view(['POST'])
@@ -29,9 +33,12 @@ def register(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if len(password) < 8:
+        # Validate password using Django's validators
+        try:
+            validate_password(password, user=None)
+        except DjangoValidationError as e:
             return Response(
-                {'error': 'Password must be at least 8 characters long'},
+                {'error': ' '.join(e.messages)},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -185,25 +192,17 @@ def get_user(request):
 @permission_classes([AllowAny])
 def refresh_token(request):
     """Refresh access token using refresh token"""
-    try:
-        refresh_token = request.data.get('refresh_token')
-        
-        if not refresh_token:
-            return Response(
-                {'error': 'Refresh token is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        refresh = RefreshToken(refresh_token)
-        access_token = refresh.access_token
-
-        return Response({
-            'access': str(access_token),
-        }, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        logger.exception('Error during token refresh')
+    refresh_token_value = request.data.get('refresh_token')
+    
+    if not refresh_token_value:
         return Response(
-            {'error': 'Invalid refresh token'},
-            status=status.HTTP_401_UNAUTHORIZED
+            {'error': 'Refresh token is required'},
+            status=status.HTTP_400_BAD_REQUEST
         )
+
+    # Use TokenRefreshSerializer to handle rotation and blacklist
+    # Let serializer validation errors propagate (DRF will handle them)
+    serializer = TokenRefreshSerializer(data={'refresh': refresh_token_value})
+    serializer.is_valid(raise_exception=True)
+    
+    return Response(serializer.validated_data, status=status.HTTP_200_OK)

@@ -135,16 +135,19 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
             <div>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-                marginBottom: '8px',
-              }}>
+              <label 
+                htmlFor="first_name"
+                style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '8px',
+                }}>
                 First Name
               </label>
               <input
+                id="first_name"
                 type="text"
                 name="first_name"
                 value={formData.first_name}
@@ -161,16 +164,19 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-                marginBottom: '8px',
-              }}>
+              <label 
+                htmlFor="last_name"
+                style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '8px',
+                }}>
                 Last Name
               </label>
               <input
+                id="last_name"
                 type="text"
                 name="last_name"
                 value={formData.last_name}
@@ -189,16 +195,19 @@ export default function RegisterPage() {
           </div>
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '8px',
-            }}>
+            <label 
+              htmlFor="username"
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '8px',
+              }}>
               Username *
             </label>
             <input
+              id="username"
               type="text"
               name="username"
               value={formData.username}
@@ -217,16 +226,19 @@ export default function RegisterPage() {
           </div>
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '8px',
-            }}>
+            <label 
+              htmlFor="email"
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '8px',
+              }}>
               Email *
             </label>
             <input
+              id="email"
               type="email"
               name="email"
               value={formData.email}
@@ -245,16 +257,19 @@ export default function RegisterPage() {
           </div>
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '8px',
-            }}>
+            <label 
+              htmlFor="password"
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '8px',
+              }}>
               Password *
             </label>
             <input
+              id="password"
               type="password"
               name="password"
               value={formData.password}
@@ -273,16 +288,19 @@ export default function RegisterPage() {
           </div>
 
           <div style={{ marginBottom: '24px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '8px',
-            }}>
+            <label 
+              htmlFor="confirmPassword"
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '8px',
+              }}>
               Confirm Password *
             </label>
             <input
+              id="confirmPassword"
               type="password"
               name="confirmPassword"
               value={formData.confirmPassword}

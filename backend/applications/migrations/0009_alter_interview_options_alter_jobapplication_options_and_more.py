@@ -5,6 +5,37 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+def check_no_duplicate_job_applications(apps, schema_editor):
+    """Check for duplicate job applications before adding unique constraint"""
+    JobApplication = apps.get_model('applications', 'JobApplication')
+    
+    # Find duplicates grouped by (user_id, company, position) with status in ['Applied', 'Interviewing', 'Assessment']
+    duplicates = (
+        JobApplication.objects
+        .filter(status__in=['Applied', 'Interviewing', 'Assessment'])
+        .values('user_id', 'company', 'position')
+        .annotate(count=models.Count('id'))
+        .filter(count__gt=1)
+    )
+    
+    if duplicates.exists():
+        duplicate_list = list(duplicates)
+        error_messages = [
+            f"User {d['user_id']}, Company '{d['company']}', Position '{d['position']}' ({d['count']} duplicates)"
+            for d in duplicate_list
+        ]
+        raise RuntimeError(
+            f"Found duplicate job applications that violate the unique constraint:\n" +
+            "\n".join(error_messages) +
+            "\n\nPlease remove or consolidate duplicates before running this migration."
+        )
+
+
+def reverse_check(apps, schema_editor):
+    """Reverse operation - nothing to do"""
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -51,6 +82,7 @@ class Migration(migrations.Migration):
             name='applied_date',
             field=models.DateField(db_index=True, default=datetime.date.today),
         ),
+        migrations.RunPython(check_no_duplicate_job_applications, reverse_check),
         migrations.AddConstraint(
             model_name='jobapplication',
             constraint=models.UniqueConstraint(condition=models.Q(('status__in', ['Applied', 'Interviewing', 'Assessment'])), fields=('user', 'company', 'position'), name='unique_user_application'),

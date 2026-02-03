@@ -112,55 +112,55 @@ export default function JobTrackingDashboard() {
   };
 
   const fetchStats = async () => {
-    try {
-      const response = await fetch(API_ENDPOINTS.JOB_STATS, {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error("Failed to fetch stats");
-      const data = await response.json();
-      setStats(data);
-    } catch (err) {
-      console.error("Error fetching stats:", err);
+    const response = await fetch(API_ENDPOINTS.JOB_STATS, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = new Error("Failed to fetch stats");
+      console.error("Error fetching stats:", error);
+      throw error;
     }
+    const data = await response.json();
+    setStats(data);
   };
 
   const fetchApplications = async () => {
-    try {
-      const response = await fetch(API_ENDPOINTS.RECENT_APPLICATIONS, {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error("Failed to fetch applications");
-      const data = await response.json();
-      setApps(data);
-    } catch (err) {
-      console.error("Error fetching applications:", err);
+    const response = await fetch(API_ENDPOINTS.RECENT_APPLICATIONS, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = new Error("Failed to fetch applications");
+      console.error("Error fetching applications:", error);
+      throw error;
     }
+    const data = await response.json();
+    setApps(data);
   };
 
   const fetchInterviews = async () => {
-    try {
-      const response = await fetch(API_ENDPOINTS.UPCOMING_INTERVIEWS, {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error("Failed to fetch interviews");
-      const data = await response.json();
-      setInterviews(data);
-    } catch (err) {
-      console.error("Error fetching interviews:", err);
+    const response = await fetch(API_ENDPOINTS.UPCOMING_INTERVIEWS, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = new Error("Failed to fetch interviews");
+      console.error("Error fetching interviews:", error);
+      throw error;
     }
+    const data = await response.json();
+    setInterviews(data);
   };
 
   const fetchInterviewStats = async () => {
-    try {
-      const response = await fetch(API_ENDPOINTS.INTERVIEW_STATS, {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error("Failed to fetch interview stats");
-      const data = await response.json();
-      setInterviewStats(data);
-    } catch (err) {
-      console.error("Error fetching interview stats:", err);
+    const response = await fetch(API_ENDPOINTS.INTERVIEW_STATS, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = new Error("Failed to fetch interview stats");
+      console.error("Error fetching interview stats:", error);
+      throw error;
     }
+    const data = await response.json();
+    setInterviewStats(data);
   };
 
   const handleStatusChange = async (id, val) => {
@@ -241,8 +241,15 @@ export default function JobTrackingDashboard() {
       setApps(prev => prev.filter(a => a.id !== id));
       setDeleteConfirm(null);
       
-      // Refresh stats
-      fetchStats();
+      // Remove interviews tied to deleted application
+      setInterviews(prev => prev.filter(i => i.job_application_id !== id));
+      
+      // Refresh stats and interview data
+      await Promise.all([
+        fetchStats(),
+        fetchInterviews(),
+        fetchInterviewStats()
+      ]);
     } catch (err) {
       console.error("Error deleting application:", err);
       alert("Failed to delete application. Please try again.");

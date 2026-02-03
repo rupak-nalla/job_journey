@@ -76,7 +76,9 @@ export default function ApplicationDetail() {
   const fetchApplication = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.GET_JOB_APPLICATION(params.id));
+      const response = await fetch(API_ENDPOINTS.GET_JOB_APPLICATION(params.id), {
+        headers: getAuthHeaders(),
+      });
       if (!response.ok) throw new Error("Failed to fetch application");
       const data = await response.json();
       setApplication(data);

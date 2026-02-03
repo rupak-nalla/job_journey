@@ -78,11 +78,11 @@ export default function RegisterPage() {
 
     if (result.success) {
       router.replace('/dashboard');
+      return; // Return early to avoid state updates after navigation
     } else {
       setError(result.error);
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

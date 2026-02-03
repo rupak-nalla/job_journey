@@ -285,10 +285,41 @@ describe('AuthContext', () => {
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
-      // Set initial state
-      act(() => {
-        result.current.user = { id: 1, username: 'testuser' };
-        result.current.isAuthenticated = true;
+      // Wait for initial auth check to complete
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      // Set authenticated state by logging in first
+      const mockUser = {
+        id: 1,
+        username: 'testuser',
+        email: 'test@example.com',
+      };
+      const mockTokens = {
+        access: 'access_token',
+        refresh: mockRefreshToken,
+      };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          user: mockUser,
+          tokens: mockTokens,
+        }),
+      });
+
+      await act(async () => {
+        await result.current.login('testuser', 'password123');
+      });
+
+      await waitFor(() => {
+        expect(result.current.isAuthenticated).toBe(true);
+      });
+
+      // Now test logout
+      fetch.mockResolvedValueOnce({
+        ok: true,
       });
 
       await act(async () => {

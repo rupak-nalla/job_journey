@@ -5,15 +5,29 @@ from django.contrib.auth.models import User
 
 
 def delete_applications_without_user(apps, schema_editor):
-    """Delete any applications that don't have a user assigned"""
+    """
+    Delete any applications that don't have a user assigned.
+    
+    WARNING: This operation permanently deletes data. It is recommended to
+    create a backup before running this migration.
+    """
     JobApplication = apps.get_model('applications', 'JobApplication')
     # Delete all applications without a user
     JobApplication.objects.filter(user__isnull=True).delete()
 
 
 def reverse_delete(apps, schema_editor):
-    """Reverse operation - nothing to do"""
-    pass
+    """
+    Reverse operation is not possible.
+    
+    This migration permanently deletes JobApplication rows that don't have
+    a user assigned. These rows cannot be restored during rollback.
+    """
+    raise RuntimeError(
+        'Cannot reverse migration 0008_make_user_required: '
+        'delete_applications_without_user permanently removed data that '
+        'cannot be restored. If you need to rollback, restore from a backup.'
+    )
 
 
 class Migration(migrations.Migration):

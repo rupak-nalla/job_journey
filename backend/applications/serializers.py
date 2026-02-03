@@ -45,7 +45,8 @@ class JobApplicationSerializer(serializers.ModelSerializer):
 class InterviewSerializer(serializers.ModelSerializer):
     company = serializers.CharField(source='job_application.company')
     position = serializers.CharField(source='job_application.position')
+    job_application_id = serializers.IntegerField(source='job_application.id', read_only=True)
 
     class Meta:
         model = Interview
-        fields = ['id', 'company', 'position', 'date', 'time', 'type']
+        fields = ['id', 'company', 'position', 'date', 'time', 'type', 'job_application_id']

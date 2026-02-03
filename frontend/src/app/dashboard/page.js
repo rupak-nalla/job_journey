@@ -37,6 +37,7 @@ const Icon = ({ name, size = 18, color = "currentColor", className = "" }) => {
     file:      <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></>,
     arrow:     <><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></>,
     alert:     <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></>,
+    loader:    <><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="32" strokeDashoffset="32"><animate attributeName="stroke-dasharray" dur="2s" values="0 32;16 16;0 32;0 32" repeatCount="indefinite" /><animate attributeName="stroke-dashoffset" dur="2s" values="0;-16;-32;-32" repeatCount="indefinite" /></circle></>,
   };
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -50,20 +51,7 @@ export default function JobTrackingDashboard() {
   const router = useRouter();
   const { user, loading: authLoading, isAuthenticated, logout } = useAuth();
   
-  // Show loading while checking authentication
-  if (authLoading) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: '16px', color: '#6b7280' }}>Loading...</div>
-      </div>
-    );
-  }
-
-  // Don't render if not authenticated (will redirect)
-  if (!isAuthenticated) {
-    return null;
-  }
-
+  // All hooks must be called before any conditional returns
   const [activeTab, setActiveTab] = useState("overview");
   const [apps, setApps] = useState([]);
   const [stats, setStats] = useState({ total: 0, applied: 0, ghosted: 0, interviewing: 0, assessment: 0 });
@@ -96,6 +84,20 @@ export default function JobTrackingDashboard() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, authLoading]);
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: '16px', color: '#6b7280' }}>Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const fetchAllData = async () => {
     setIsLoading(true);
@@ -601,7 +603,7 @@ export default function JobTrackingDashboard() {
               <span style={S.typeBadge}>{iv.type}</span>
               <button 
                 style={{ ...S.addBtn, padding: "7px 14px", fontSize: 12 }}
-                onClick={() => router.push(`/application/${iv.id}`)}
+                onClick={() => router.push(`/application/${iv.job_application_id || iv.id}`)}
               >
                 Details
               </button>

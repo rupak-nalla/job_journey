@@ -53,7 +53,8 @@ class Command(BaseCommand):
                     f'ERROR: Found {interviews_without_user.count()} interviews linked to applications without users!'
                 )
             )
-        else:
-            self.stdout.write(self.style.SUCCESS('[OK] All interviews are linked to applications with users'))
+            return
+        
+        self.stdout.write(self.style.SUCCESS('[OK] All interviews are linked to applications with users'))
         
         self.stdout.write(self.style.SUCCESS('\n[OK] User isolation verification complete!'))

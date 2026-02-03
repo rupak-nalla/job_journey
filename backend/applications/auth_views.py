@@ -1,3 +1,4 @@
+import logging
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -6,6 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import IntegrityError
+
+logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
@@ -78,8 +81,9 @@ def register(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
+        logger.exception('Error during user registration')
         return Response(
-            {'error': str(e)},
+            {'error': 'An error occurred processing your request'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -132,8 +136,9 @@ def login(request):
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
+        logger.exception('Error during user login')
         return Response(
-            {'error': str(e)},
+            {'error': 'An error occurred'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -154,8 +159,9 @@ def logout(request):
             status=status.HTTP_200_OK
         )
     except Exception as e:
+        logger.exception('Error during user logout')
         return Response(
-            {'error': str(e)},
+            {'error': 'An error occurred'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -176,7 +182,7 @@ def get_user(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def refresh_token(request):
     """Refresh access token using refresh token"""
     try:
@@ -196,6 +202,7 @@ def refresh_token(request):
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
+        logger.exception('Error during token refresh')
         return Response(
             {'error': 'Invalid refresh token'},
             status=status.HTTP_401_UNAUTHORIZED

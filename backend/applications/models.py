@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.utils import timezone
 from datetime import date as date_func
 
@@ -13,7 +13,7 @@ class JobApplication(models.Model):
 
     # User is required - all applications must belong to a user
     user = models.ForeignKey(
-        User, 
+        settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
         related_name='job_applications',
         db_index=True,  # Index for faster queries

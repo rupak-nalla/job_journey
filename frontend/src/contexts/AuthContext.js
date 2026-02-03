@@ -28,6 +28,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
+        // Clear auth state when no token
+        setUser(null);
+        setIsAuthenticated(false);
         setLoading(false);
         return;
       }

@@ -193,7 +193,7 @@ export default function AddJobApplication() {
     }
   };
 
-  const statusOptions = ["Applied", "Ghosted", "Interviewing", "Assessment"];
+  const statusOptions = ["Applied", "Ghosted", "Interviewing", "Assessment", "Offered"];
 
   // ── Styles (matching login/register) ──
   const S = {

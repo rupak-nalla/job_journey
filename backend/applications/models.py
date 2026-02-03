@@ -9,6 +9,7 @@ class JobApplication(models.Model):
         ("Ghosted", "Ghosted"),
         ("Interviewing", "Interviewing"),
         ("Assessment", "Assessment"),
+        ("Offered", "Offered"),
     ]
 
     # User is required - all applications must belong to a user
@@ -45,7 +46,7 @@ class JobApplication(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'company', 'position'],
                 name='unique_user_application',
-                condition=models.Q(status__in=['Applied', 'Interviewing', 'Assessment']),
+                condition=models.Q(status__in=['Applied', 'Interviewing', 'Assessment', 'Offered']),
             ),
         ]
 

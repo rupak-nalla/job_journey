@@ -44,7 +44,7 @@ class JobApplicationModelTest(TestCase):
     
     def test_status_choices(self):
         """Test all status choices are valid"""
-        valid_statuses = ["Applied", "Ghosted", "Interviewing", "Assessment"]
+        valid_statuses = ["Applied", "Ghosted", "Interviewing", "Assessment", "Offered"]
         for status_choice in valid_statuses:
             job = JobApplication.objects.create(
                 company=f"Company {status_choice}",

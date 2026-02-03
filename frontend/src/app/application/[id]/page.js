@@ -4,6 +4,15 @@ import { useParams, useRouter } from "next/navigation";
 import { API_ENDPOINTS, getAuthHeaders } from "@/config/api";
 import { useAuth } from "@/contexts/AuthContext";
 
+// ─── Helper Functions ───────────────────────────────────────
+const getLocalISODate = (d = new Date()) => {
+  // Get local date string in YYYY-MM-DD format
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // ─── Icons (matching dashboard) ───────────────────────────────
 const Icon = ({ name, size = 18, color = "currentColor", style }) => {
   const paths = {
@@ -34,7 +43,7 @@ export default function ApplicationDetail() {
   const [formData, setFormData] = useState({});
   const [showInterviewFields, setShowInterviewFields] = useState(false);
   const [interviewData, setInterviewData] = useState({
-    date: new Date().toISOString().split("T")[0],
+    date: getLocalISODate(),
     time: "10:00",
     type: "Technical",
   });
@@ -61,9 +70,18 @@ export default function ApplicationDetail() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#f8f9fa',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '20px',
       }}>
-        <div style={{ fontSize: '16px', color: '#6b7280' }}>Loading...</div>
+        <div style={{ 
+          background: '#fff', 
+          borderRadius: 16, 
+          padding: '40px', 
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
+        }}>
+          <div style={{ fontSize: '16px', color: '#6b7280', textAlign: 'center' }}>Loading...</div>
+        </div>
       </div>
     );
   }
@@ -89,7 +107,7 @@ export default function ApplicationDetail() {
         setShowInterviewFields(true);
         if (data.interview_date || data.interview_time || data.interview_type) {
           setInterviewData({
-            date: data.interview_date || new Date().toISOString().split("T")[0],
+            date: data.interview_date || getLocalISODate(),
             time: data.interview_time || "10:00",
             type: data.interview_type || "Technical",
           });
@@ -168,28 +186,32 @@ export default function ApplicationDetail() {
     }
   };
 
-  const statusOptions = ["Applied", "Ghosted", "Interviewing", "Assessment"];
+  const statusOptions = ["Applied", "Ghosted", "Interviewing", "Assessment", "Offered"];
 
-  // ── Styles (matching dashboard) ──
+  // ── Styles (matching login/register/dashboard) ──
   const S = {
     root: {
       minHeight: "100vh",
-      background: "#f8f9fa",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-      color: "#1a1a2e",
+      color: "#1f2937",
+      padding: "20px",
     },
     topbar: {
-      background: "#fff",
-      borderBottom: "1px solid #e8eaed",
+      background: "rgba(255, 255, 255, 0.95)",
+      backdropFilter: "blur(10px)",
+      borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
       padding: "0 40px",
       height: 72,
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       position: "sticky",
-      top: 0,
+      top: 20,
       zIndex: 10,
-      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+      borderRadius: "16px",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+      marginBottom: "20px",
     },
     backLink: {
       display: "inline-flex",
@@ -203,18 +225,17 @@ export default function ApplicationDetail() {
       transition: "opacity 0.2s",
       cursor: "pointer",
     },
-    container: { maxWidth: 900, margin: "0 auto", padding: "32px 24px 80px" },
-    header: { marginBottom: 32 },
-    title: { fontSize: 28, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px", marginBottom: 6 },
-    subtitle: { fontSize: 13, color: "#9ca3af" },
+    container: { maxWidth: 900, margin: "0 auto", padding: "0" },
+    header: { marginBottom: 32, textAlign: "center" },
+    title: { fontSize: 28, fontWeight: "bold", color: "#1f2937", marginBottom: 8, textAlign: "center" },
+    subtitle: { fontSize: 14, color: "#6b7280", textAlign: "center" },
     card: {
       background: "#fff",
-      borderRadius: 14,
-      border: "1px solid #eee",
-      padding: 32,
+      borderRadius: 16,
+      border: "none",
+      padding: 40,
+      boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
     },
-    loading: { textAlign: "center", padding: 80 },
-    loadingIcon: { margin: "0 auto 16px", width: 48, height: 48, borderRadius: 12, background: "#f0f0f3", display: "flex", alignItems: "center", justifyContent: "center" },
     companyHeader: { marginBottom: 24, paddingBottom: 24, borderBottom: "1px solid #f0f0f0" },
     companyName: { fontSize: 32, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.7px", marginBottom: 8 },
     positionName: { fontSize: 18, color: "#6b7280", marginBottom: 16 },
@@ -224,6 +245,7 @@ export default function ApplicationDetail() {
         Interviewing: { bg: "#fefce8", text: "#ca8a04" },
         Assessment: { bg: "#f0fdf4", text: "#16a34a" },
         Ghosted: { bg: "#f3f4f6", text: "#6b7280" },
+        Offered: { bg: "#dcfce7", text: "#15803d" },
       };
       const c = colors[status] || colors.Applied;
       return {
@@ -252,44 +274,62 @@ export default function ApplicationDetail() {
     form: { display: "flex", flexDirection: "column", gap: 24 },
     fieldGroup: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 },
     field: { display: "flex", flexDirection: "column", gap: 8 },
-    label: { fontSize: 12, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px" },
+    label: { fontSize: 14, fontWeight: 500, color: "#374151", marginBottom: 8, display: "block" },
     input: {
-      padding: "11px 14px",
-      border: "1px solid #e5e7eb",
+      width: "100%",
+      padding: "12px",
+      border: "1px solid #d1d5db",
       borderRadius: 8,
-      fontSize: 13,
-      color: "#1a1a2e",
+      fontSize: 16,
+      color: "#1f2937",
       outline: "none",
       transition: "all 0.2s",
       fontFamily: "inherit",
+      boxSizing: "border-box",
+      background: "#fff",
     },
     textarea: {
-      padding: "11px 14px",
-      border: "1px solid #e5e7eb",
+      width: "100%",
+      padding: "12px",
+      border: "1px solid #d1d5db",
       borderRadius: 8,
-      fontSize: 13,
-      color: "#1a1a2e",
+      fontSize: 16,
+      color: "#1f2937",
       outline: "none",
       transition: "all 0.2s",
       fontFamily: "inherit",
+      boxSizing: "border-box",
       resize: "vertical",
       minHeight: 100,
+      background: "#fff",
     },
     divider: { borderTop: "1px solid #f0f0f0", marginTop: 8, marginBottom: 8 },
     actions: { display: "flex", gap: 12, paddingTop: 24, borderTop: "1px solid #f0f0f0" },
     btn: (variant) => {
       const styles = {
-        primary: { background: "#1a1a2e", color: "#fff" },
-        secondary: { background: "#f3f4f6", color: "#374151" },
-        danger: { background: "#ef4444", color: "#fff" },
+        primary: { 
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", 
+          color: "#fff", 
+          boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+        },
+        secondary: { 
+          background: "#f3f4f6", 
+          color: "#374151",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        },
+        danger: { 
+          background: "#ef4444", 
+          color: "#fff",
+          boxShadow: "0 4px 12px rgba(239, 68, 68, 0.4)",
+        },
       };
       const s = styles[variant] || styles.primary;
       return {
         flex: 1,
-        padding: "11px 20px",
+        padding: "12px 20px",
         border: "none",
         borderRadius: 8,
-        fontSize: 13,
+        fontSize: 16,
         fontWeight: 600,
         cursor: "pointer",
         display: "flex",
@@ -298,6 +338,7 @@ export default function ApplicationDetail() {
         gap: 8,
         letterSpacing: "0.2px",
         transition: "all 0.2s",
+        fontFamily: "inherit",
         ...s,
       };
     },
@@ -312,11 +353,22 @@ export default function ApplicationDetail() {
           </span>
         </header>
         <main style={S.container}>
-          <div style={S.loading}>
-            <div style={S.loadingIcon}>
-              <Icon name="loader" size={22} color="#1a1a2e" />
+          <div style={S.card}>
+            <div style={{ textAlign: "center", padding: "40px 0" }}>
+              <div style={{ 
+                margin: "0 auto 16px", 
+                width: 48, 
+                height: 48, 
+                borderRadius: 12, 
+                background: "#f0f0f3", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center" 
+              }}>
+                <Icon name="loader" size={22} color="#1a1a2e" />
+              </div>
+              <p style={{ fontSize: 14, color: "#6b7280", fontWeight: 500 }}>Loading application...</p>
             </div>
-            <p style={{ fontSize: 13, color: "#9ca3af", fontWeight: 600 }}>Loading application...</p>
           </div>
         </main>
       </div>
@@ -332,10 +384,15 @@ export default function ApplicationDetail() {
           </span>
         </header>
         <main style={S.container}>
-          <div style={{ ...S.card, textAlign: "center", padding: 60 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: "#1a1a2e" }}>Application Not Found</h2>
-            <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 24 }}>This application does not exist or has been removed.</p>
-            <button style={S.btn("primary")} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.background = "#16213e")} onMouseLeave={(e) => (e.currentTarget.style.background = "#1a1a2e")}>
+          <div style={{ ...S.card, textAlign: "center", padding: "60px 40px" }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: "#1f2937" }}>Application Not Found</h2>
+            <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 32 }}>This application does not exist or has been removed.</p>
+            <button 
+              style={S.btn("primary")} 
+              onClick={() => router.push("/dashboard")} 
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")} 
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            >
               <Icon name="arrowLeft" size={16} color="#fff" /> Back to Dashboard
             </button>
           </div>
@@ -369,24 +426,24 @@ export default function ApplicationDetail() {
               <div style={S.fieldGroup}>
                 <div style={S.field}>
                   <label htmlFor="company" style={S.label}>Company Name</label>
-                  <input type="text" id="company" name="company" value={formData.company || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")} onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")} />
+                  <input type="text" id="company" name="company" value={formData.company || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #667eea")} onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")} />
                 </div>
                 <div style={S.field}>
                   <label htmlFor="position" style={S.label}>Position</label>
-                  <input type="text" id="position" name="position" value={formData.position || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")} onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")} />
+                  <input type="text" id="position" name="position" value={formData.position || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #667eea")} onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")} />
                 </div>
               </div>
 
               <div style={S.fieldGroup}>
                 <div style={S.field}>
                   <label htmlFor="status" style={S.label}>Status</label>
-                  <select id="status" name="status" value={formData.status || "Applied"} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")} onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}>
+                  <select id="status" name="status" value={formData.status || "Applied"} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #667eea")} onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}>
                     {statusOptions.map((status) => (<option key={status} value={status}>{status}</option>))}
                   </select>
                 </div>
                 <div style={S.field}>
                   <label htmlFor="applied_date" style={S.label}>Applied Date</label>
-                  <input type="date" id="applied_date" name="applied_date" value={formData.applied_date || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")} onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")} />
+                  <input type="date" id="applied_date" name="applied_date" value={formData.applied_date || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #667eea")} onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")} />
                 </div>
               </div>
 
@@ -395,22 +452,22 @@ export default function ApplicationDetail() {
               <div style={S.fieldGroup}>
                 <div style={S.field}>
                   <label htmlFor="contact_email" style={S.label}>Contact Email</label>
-                  <input type="email" id="contact_email" name="contact_email" value={formData.contact_email || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")} onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")} />
+                  <input type="email" id="contact_email" name="contact_email" value={formData.contact_email || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #667eea")} onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")} />
                 </div>
                 <div style={S.field}>
                   <label htmlFor="contact_phone" style={S.label}>Contact Phone</label>
-                  <input type="tel" id="contact_phone" name="contact_phone" value={formData.contact_phone || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")} onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")} />
+                  <input type="tel" id="contact_phone" name="contact_phone" value={formData.contact_phone || ""} onChange={handleChange} style={S.input} onFocus={(e) => (e.target.style.border = "1px solid #667eea")} onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")} />
                 </div>
               </div>
 
               <div style={S.field}>
                 <label htmlFor="job_description" style={S.label}>Job Description</label>
-                <textarea id="job_description" name="job_description" value={formData.job_description || ""} onChange={handleChange} rows={5} style={S.textarea} onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")} onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")} />
+                <textarea id="job_description" name="job_description" value={formData.job_description || ""} onChange={handleChange} rows={5} style={S.textarea} onFocus={(e) => (e.target.style.border = "1px solid #667eea")} onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")} />
               </div>
 
               <div style={S.field}>
                 <label htmlFor="notes" style={S.label}>Notes</label>
-                <textarea id="notes" name="notes" value={formData.notes || ""} onChange={handleChange} rows={4} style={S.textarea} onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")} onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")} />
+                <textarea id="notes" name="notes" value={formData.notes || ""} onChange={handleChange} rows={4} style={S.textarea} onFocus={(e) => (e.target.style.border = "1px solid #667eea")} onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")} />
               </div>
 
               {/* Interview Fields (Conditional) */}
@@ -422,7 +479,7 @@ export default function ApplicationDetail() {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
                     <div style={S.field}>
-                      <label htmlFor="interview_date" style={{ ...S.label, fontSize: 11 }}>Date</label>
+                      <label htmlFor="interview_date" style={S.label}>Date</label>
                       <input
                         type="date"
                         id="interview_date"
@@ -430,13 +487,13 @@ export default function ApplicationDetail() {
                         value={interviewData.date}
                         onChange={handleInterviewChange}
                         style={S.input}
-                        onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                        onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                        onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                        onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                       />
                     </div>
 
                     <div style={S.field}>
-                      <label htmlFor="interview_time" style={{ ...S.label, fontSize: 11 }}>Time</label>
+                      <label htmlFor="interview_time" style={S.label}>Time</label>
                       <input
                         type="time"
                         id="interview_time"
@@ -444,21 +501,21 @@ export default function ApplicationDetail() {
                         value={interviewData.time}
                         onChange={handleInterviewChange}
                         style={S.input}
-                        onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                        onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                        onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                        onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                       />
                     </div>
 
                     <div style={S.field}>
-                      <label htmlFor="interview_type" style={{ ...S.label, fontSize: 11 }}>Type</label>
+                      <label htmlFor="interview_type" style={S.label}>Type</label>
                       <select
                         id="interview_type"
                         name="type"
                         value={interviewData.type}
                         onChange={handleInterviewChange}
                         style={S.input}
-                        onFocus={(e) => (e.target.style.border = "1px solid #1a1a2e")}
-                        onBlur={(e) => (e.target.style.border = "1px solid #e5e7eb")}
+                        onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                        onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
                       >
                         <option value="Technical">Technical</option>
                         <option value="HR">HR</option>
@@ -473,10 +530,21 @@ export default function ApplicationDetail() {
               )}
 
               <div style={S.actions}>
-                <button type="submit" style={S.btn("primary")} onMouseEnter={(e) => (e.currentTarget.style.background = "#16213e")} onMouseLeave={(e) => (e.currentTarget.style.background = "#1a1a2e")}>
+                <button 
+                  type="submit" 
+                  style={S.btn("primary")} 
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")} 
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                >
                   <Icon name="save" size={16} color="#fff" /> Save Changes
                 </button>
-                <button type="button" onClick={() => { setIsEditing(false); setFormData(application); }} style={S.btn("secondary")} onMouseEnter={(e) => (e.currentTarget.style.background = "#e5e7eb")} onMouseLeave={(e) => (e.currentTarget.style.background = "#f3f4f6")}>
+                <button 
+                  type="button" 
+                  onClick={() => { setIsEditing(false); setFormData(application); }} 
+                  style={S.btn("secondary")} 
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#e5e7eb")} 
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "#f3f4f6")}
+                >
                   <Icon name="x" size={16} /> Cancel
                 </button>
               </div>
@@ -563,10 +631,20 @@ export default function ApplicationDetail() {
               )}
 
               <div style={S.actions}>
-                <button onClick={() => setIsEditing(true)} style={S.btn("primary")} onMouseEnter={(e) => (e.currentTarget.style.background = "#16213e")} onMouseLeave={(e) => (e.currentTarget.style.background = "#1a1a2e")}>
+                <button 
+                  onClick={() => setIsEditing(true)} 
+                  style={S.btn("primary")} 
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")} 
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                >
                   <Icon name="edit" size={16} color="#fff" /> Edit Application
                 </button>
-                <button onClick={handleDelete} style={S.btn("danger")} onMouseEnter={(e) => (e.currentTarget.style.background = "#dc2626")} onMouseLeave={(e) => (e.currentTarget.style.background = "#ef4444")}>
+                <button 
+                  onClick={handleDelete} 
+                  style={S.btn("danger")} 
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")} 
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                >
                   <Icon name="trash" size={16} color="#fff" /> Delete
                 </button>
               </div>

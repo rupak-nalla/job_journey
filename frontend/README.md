@@ -10,7 +10,7 @@ A modern, production-ready job application tracking system built with Next.js 15
 - 🔒 Production-ready with error handling
 - 📊 Real-time statistics and tracking
 - 📄 Resume upload and management
-- 🔄 Status tracking (Applied, Ghosted, Interviewing, Assessment)
+- 🔄 Status tracking (Applied, Ghosted, Interviewing, Assessment, Offered)
 
 ## Color Palette
 

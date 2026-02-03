@@ -10,6 +10,7 @@ const STATUS_CONFIG = {
   Interviewing: { bg: "#fefce8", text: "#ca8a04", dot: "#ca8a04" },
   Assessment:   { bg: "#f0fdf4", text: "#16a34a", dot: "#16a34a" },
   Ghosted:      { bg: "#f3f4f6", text: "#6b7280", dot: "#9ca3af" },
+  Offered:      { bg: "#dcfce7", text: "#15803d", dot: "#15803d" },
 };
 
 const StatusBadge = ({ status }) => {
@@ -528,6 +529,7 @@ export default function JobTrackingDashboard() {
                       <option value="Interviewing">Interviewing</option>
                       <option value="Assessment">Assessment</option>
                       <option value="Ghosted">Ghosted</option>
+                      <option value="Offered">Offered</option>
                     </select>
                   ) : (
                     <span onClick={() => setEditingId(app.id)} style={{ cursor: "pointer" }}><StatusBadge status={app.status} /></span>

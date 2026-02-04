@@ -45,11 +45,12 @@ FROM python:3.12-slim
 
 WORKDIR /workspace
 
-# Install system dependencies, Node.js, and nginx for reverse proxy
+# Install system dependencies, Node.js, nginx, and netcat for health checks
 RUN apt-get update && apt-get install -y \
     gcc \
     curl \
     nginx \
+    netcat-openbsd \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*

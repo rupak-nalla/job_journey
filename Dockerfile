@@ -1,0 +1,105 @@
+# Multi-stage build for Job Tracker full-stack application
+# This Dockerfile builds both backend and frontend in a single container
+
+# ============================================================================
+# Stage 1: Backend Builder
+# ============================================================================
+FROM python:3.12-slim AS backend-builder
+
+WORKDIR /app/backend
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies
+COPY backend/requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# ============================================================================
+# Stage 2: Frontend Builder
+# ============================================================================
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy package files and install dependencies
+COPY frontend/package.json frontend/package-lock.json* ./
+RUN npm ci
+
+# Copy frontend source and build
+COPY frontend/ .
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+# ============================================================================
+# Stage 3: Production Runtime
+# ============================================================================
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install system dependencies and Node.js for running Next.js
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Copy backend from builder
+COPY --from=backend-builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=backend-builder /usr/local/bin /usr/local/bin
+COPY backend/ /app/backend/
+
+# Copy frontend build from builder
+COPY --from=frontend-builder /app/frontend/.next/standalone /app/frontend/
+COPY --from=frontend-builder /app/frontend/.next/static /app/frontend/.next/static
+COPY --from=frontend-builder /app/frontend/public /app/frontend/public
+
+# Create necessary directories
+RUN mkdir -p /app/backend/media/resumes && \
+    mkdir -p /app/frontend
+
+# Set working directory to backend for migrations
+WORKDIR /app/backend
+
+# Run migrations and collect static files
+RUN python manage.py collectstatic --noinput || true
+
+# Expose ports
+EXPOSE 8000 3000
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Run backend migrations\n\
+echo "Running database migrations..."\n\
+python manage.py migrate --noinput || true\n\
+\n\
+# Start backend with gunicorn in background\n\
+echo "Starting backend server..."\n\
+gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 job_tracker.wsgi:application &\n\
+BACKEND_PID=$!\n\
+\n\
+# Start frontend\n\
+echo "Starting frontend server..."\n\
+cd /app/frontend\n\
+PORT=3000 HOSTNAME=0.0.0.0 node server.js &\n\
+FRONTEND_PID=$!\n\
+\n\
+# Wait for both processes\n\
+wait $BACKEND_PID $FRONTEND_PID\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# Run startup script
+CMD ["/app/start.sh"]

@@ -259,6 +259,47 @@ if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
             "Please set it in your .env file."
         )
 
+# Logging Configuration
+# Configure logging to output to stdout/stderr (captured by Render)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+            'stream': 'ext://sys.stdout',  # Explicitly use stdout
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'applications': {
+            'handlers': ['console'],
+            'level': 'INFO',  # Set to INFO to see all log messages
+            'propagate': False,
+        },
+    },
+}
+
 # Security Settings (Production)
 if not DEBUG:
     SECURE_SSL_REDIRECT = True

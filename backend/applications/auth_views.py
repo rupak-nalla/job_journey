@@ -20,9 +20,11 @@ User = get_user_model()
 def register(request):
     """Register a new user"""
     try:
-        # Log request for debugging
-        logger.debug(f"Register request received. Method: {request.method}, Content-Type: {request.content_type}")
-        logger.debug(f"Request data: {request.data}")
+        # Log request for debugging (will show in Render logs)
+        print(f"[REGISTER] Request received. Method: {request.method}, Content-Type: {request.content_type}")
+        print(f"[REGISTER] Request data: {request.data}")
+        logger.info(f"Register request received. Method: {request.method}, Content-Type: {request.content_type}")
+        logger.info(f"Register request data: {request.data}")
         
         username = request.data.get('username')
         email = request.data.get('email')
@@ -32,8 +34,11 @@ def register(request):
 
         # Validation
         if not username or not email or not password:
+            error_msg = 'Username, email, and password are required'
+            print(f"[REGISTER] Error: {error_msg}")
+            logger.warning(f"Register failed: {error_msg}")
             return Response(
-                {'error': 'Username, email, and password are required'},
+                {'error': error_msg},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -48,21 +53,30 @@ def register(request):
         try:
             validate_password(password, user=unsaved_user)
         except DjangoValidationError as e:
+            error_msg = 'Password validation failed: ' + ' '.join(e.messages)
+            print(f"[REGISTER] Error: {error_msg}")
+            logger.warning(f"Register failed - Password validation: {error_msg}")
             return Response(
-                {'error': ' '.join(e.messages)},
+                {'error': error_msg},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         # Check if user already exists
         if User.objects.filter(username=username).exists():
+            error_msg = f'Username "{username}" already exists'
+            print(f"[REGISTER] Error: {error_msg}")
+            logger.warning(f"Register failed: {error_msg}")
             return Response(
-                {'error': 'Username already exists'},
+                {'error': error_msg},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         if User.objects.filter(email=email).exists():
+            error_msg = f'Email "{email}" already exists'
+            print(f"[REGISTER] Error: {error_msg}")
+            logger.warning(f"Register failed: {error_msg}")
             return Response(
-                {'error': 'Email already exists'},
+                {'error': error_msg},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -77,6 +91,9 @@ def register(request):
 
         # Generate tokens
         refresh = RefreshToken.for_user(user)
+        
+        print(f"[REGISTER] Success: User {username} created with ID {user.id}")
+        logger.info(f"User {username} registered successfully")
         
         return Response({
             'message': 'User registered successfully',
@@ -93,16 +110,21 @@ def register(request):
             }
         }, status=status.HTTP_201_CREATED)
 
-    except IntegrityError:
+    except IntegrityError as e:
+        error_msg = 'User already exists (database constraint violation)'
+        print(f"[REGISTER] IntegrityError: {error_msg} - {str(e)}")
+        logger.exception(f"Register failed - IntegrityError: {error_msg}")
         return Response(
-            {'error': 'User already exists'},
+            {'error': error_msg},
             status=status.HTTP_400_BAD_REQUEST
         )
-    except Exception:
+    except Exception as e:
+        error_msg = f'An error occurred processing your request: {str(e)}'
+        print(f"[REGISTER] Exception: {error_msg}")
         logger.exception('Error during user registration')
         return Response(
-            {'error': 'An error occurred processing your request'},
-            status=status.HTTP_400_BAD_REQUEST
+            {'error': 'An error occurred processing your request. Please check server logs.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -111,16 +133,21 @@ def register(request):
 def login(request):
     """Login user and return JWT tokens"""
     try:
-        # Log request for debugging
-        logger.debug(f"Login request received. Method: {request.method}, Content-Type: {request.content_type}")
-        logger.debug(f"Request data keys: {list(request.data.keys()) if hasattr(request.data, 'keys') else 'No data'}")
+        # Log request for debugging (will show in Render logs)
+        print(f"[LOGIN] Request received. Method: {request.method}, Content-Type: {request.content_type}")
+        print(f"[LOGIN] Request data keys: {list(request.data.keys()) if hasattr(request.data, 'keys') else 'No data'}")
+        logger.info(f"Login request received. Method: {request.method}, Content-Type: {request.content_type}")
+        logger.info(f"Login request data keys: {list(request.data.keys()) if hasattr(request.data, 'keys') else 'No data'}")
         
         username = request.data.get('username')
         password = request.data.get('password')
 
         if not username or not password:
+            error_msg = 'Username and password are required'
+            print(f"[LOGIN] Error: {error_msg}")
+            logger.warning(f"Login failed: {error_msg}")
             return Response(
-                {'error': 'Username and password are required'},
+                {'error': error_msg},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -128,12 +155,18 @@ def login(request):
         user = authenticate(username=username, password=password)
 
         if user is None:
+            error_msg = f'Invalid username or password for user: {username}'
+            print(f"[LOGIN] Error: {error_msg}")
+            logger.warning(f"Login failed: {error_msg}")
             return Response(
                 {'error': 'Invalid username or password'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
         if not user.is_active:
+            error_msg = f'User account is disabled: {username}'
+            print(f"[LOGIN] Error: {error_msg}")
+            logger.warning(f"Login failed: {error_msg}")
             return Response(
                 {'error': 'User account is disabled'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -141,6 +174,9 @@ def login(request):
 
         # Generate tokens
         refresh = RefreshToken.for_user(user)
+
+        print(f"[LOGIN] Success: User {username} logged in with ID {user.id}")
+        logger.info(f"User {username} logged in successfully")
 
         return Response({
             'message': 'Login successful',
@@ -157,11 +193,13 @@ def login(request):
             }
         }, status=status.HTTP_200_OK)
 
-    except Exception:
+    except Exception as e:
+        error_msg = f'An error occurred during login: {str(e)}'
+        print(f"[LOGIN] Exception: {error_msg}")
         logger.exception('Error during user login')
         return Response(
-            {'error': 'An error occurred'},
-            status=status.HTTP_400_BAD_REQUEST
+            {'error': 'An error occurred. Please check server logs.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 

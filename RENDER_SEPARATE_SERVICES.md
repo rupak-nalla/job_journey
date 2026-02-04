@@ -2,9 +2,15 @@
 
 ## Backend Service Setup
 
-**Service Type**: Docker Web Service  
-**Dockerfile Path**: `backend/Dockerfile`  
-**Root Directory**: (leave empty)
+**Option 1 (Recommended):**
+- **Service Type**: Docker Web Service  
+- **Dockerfile Path**: `backend/Dockerfile`  
+- **Root Directory**: `backend` (IMPORTANT: Set this to `backend`)
+
+**Option 2 (Alternative):**
+- **Service Type**: Docker Web Service  
+- **Dockerfile Path**: `Dockerfile.backend`  
+- **Root Directory**: (leave empty)
 
 ### Environment Variables:
 ```
@@ -24,9 +30,15 @@ DEFAULT_FROM_EMAIL=rupaknalla1034@gmail.com
 
 ## Frontend Service Setup
 
-**Service Type**: Docker Web Service  
-**Dockerfile Path**: `frontend/Dockerfile`  
-**Root Directory**: (leave empty)
+**Option 1 (Recommended):**
+- **Service Type**: Docker Web Service  
+- **Dockerfile Path**: `frontend/Dockerfile`  
+- **Root Directory**: `frontend` (IMPORTANT: Set this to `frontend`)
+
+**Option 2 (Alternative):**
+- **Service Type**: Docker Web Service  
+- **Dockerfile Path**: `Dockerfile.frontend`  
+- **Root Directory**: (leave empty)
 
 ### Environment Variables:
 ```

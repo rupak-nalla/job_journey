@@ -1,17 +1,17 @@
-# Frontend Dockerfile for Next.js application
-# This Dockerfile assumes Root Directory is set to "frontend" in Render
+# Frontend Dockerfile for Next.js application (Root Directory: empty)
+# Use this if you don't want to set Root Directory in Render
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files (build context is frontend/ directory)
-COPY package.json package-lock.json* ./
+# Copy package files (build context is repo root)
+COPY frontend/package.json frontend/package-lock.json* ./
 
 # Install dependencies
 RUN npm install --legacy-peer-deps --prefer-offline --no-audit
 
-# Copy frontend source (build context is frontend/ directory)
-COPY . .
+# Copy frontend source (build context is repo root)
+COPY frontend/ .
 
 # Set build-time environment variable (can be overridden at runtime)
 ENV NEXT_TELEMETRY_DISABLED=1

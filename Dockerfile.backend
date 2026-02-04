@@ -1,5 +1,5 @@
-# Backend Dockerfile for Django application
-# This Dockerfile assumes Root Directory is set to "backend" in Render
+# Backend Dockerfile for Django application (Root Directory: empty)
+# Use this if you don't want to set Root Directory in Render
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -13,13 +13,13 @@ RUN apt-get update && apt-get install -y \
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Copy requirements and install dependencies (build context is backend/ directory)
-COPY requirements.txt .
+# Copy requirements and install dependencies (build context is repo root)
+COPY backend/requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy backend code (build context is backend/ directory)
-COPY . .
+# Copy backend code (build context is repo root)
+COPY backend/ .
 
 # Create media directory
 RUN mkdir -p ./media/resumes

@@ -28,7 +28,6 @@ const getApiBaseUrl = () => {
   
   // No explicit API URL set - determine based on current environment
   const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
   const isLocalhost = hostname === 'localhost' || 
                       hostname === '127.0.0.1' || 
                       hostname.startsWith('192.168.') ||
@@ -44,15 +43,24 @@ const getApiBaseUrl = () => {
     }
     return 'http://127.0.0.1:8000';
   } else {
-    // Production/deployed environment
+    // Production/deployed environment (any hostname that's not localhost)
     // Since we're using nginx reverse proxy, use relative URLs (same origin)
     // This ensures requests go through the same domain and nginx routes them correctly
+    console.log('[API Config] Production detected, using relative URLs. Hostname:', hostname);
     return ''; // Empty string = relative URLs (same origin)
   }
 };
 
 // Helper to get base URL at runtime (evaluates each time)
+// This ensures we always check window.location at runtime, not build time
 const getBaseUrl = () => {
+  // Force runtime evaluation - check if we're in browser
+  if (typeof window === 'undefined') {
+    // Server-side (SSR/build) - return default
+    return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+  }
+  
+  // Client-side - always evaluate fresh
   return getApiBaseUrl();
 };
 
@@ -80,8 +88,10 @@ export const API_ENDPOINTS = {
   get SUBMIT_SUPPORT() { return `${getBaseUrl()}/api/support/`; },
 };
 
-// Export API_BASE_URL as a getter function for backward compatibility
-export const API_BASE_URL = getBaseUrl();
+// Export API_BASE_URL - this is evaluated at module load time for backward compatibility
+// Note: For runtime evaluation, use getBaseUrl() directly or access API_ENDPOINTS getters
+// In production, this will be the build-time default, but API_ENDPOINTS getters evaluate at runtime
+export const API_BASE_URL = typeof window !== 'undefined' ? getBaseUrl() : 'http://127.0.0.1:8000';
 
 // Helper function to get auth headers
 export const getAuthHeaders = (includeContentType = true) => {

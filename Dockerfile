@@ -45,10 +45,11 @@ FROM python:3.12-slim
 
 WORKDIR /workspace
 
-# Install system dependencies and Node.js for running Next.js
+# Install system dependencies, Node.js, and nginx for reverse proxy
 RUN apt-get update && apt-get install -y \
     gcc \
     curl \
+    nginx \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
@@ -79,12 +80,69 @@ WORKDIR /workspace/backend
 # Run migrations and collect static files
 RUN python manage.py collectstatic --noinput || true
 
-# Expose ports
-EXPOSE 8000 3000
+# Expose port (nginx will handle routing, uses PORT env var at runtime)
+EXPOSE 8080
 
 # Create startup script
 RUN echo '#!/bin/bash\n\
 set -e\n\
+\n\
+# Get PORT from environment (Render provides this) or use 8080\n\
+NGINX_PORT=${PORT:-8080}\n\
+\n\
+# Create nginx config with dynamic port\n\
+cat > /etc/nginx/nginx.conf <<\'NGINX_EOF\'\n\
+events {\n\
+    worker_connections 1024;\n\
+}\n\
+\n\
+http {\n\
+    upstream backend {\n\
+        server 127.0.0.1:8000;\n\
+    }\n\
+\n\
+    upstream frontend {\n\
+        server 127.0.0.1:3000;\n\
+    }\n\
+\n\
+    server {\n\
+        listen NGINX_PORT_PLACEHOLDER default_server;\n\
+        server_name _;\n\
+\n\
+        # Proxy API requests to backend\n\
+        location /api/ {\n\
+            proxy_pass http://backend;\n\
+            proxy_set_header Host $host;\n\
+            proxy_set_header X-Real-IP $remote_addr;\n\
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
+            proxy_set_header X-Forwarded-Proto $scheme;\n\
+        }\n\
+\n\
+        # Proxy media files to backend\n\
+        location /media/ {\n\
+            proxy_pass http://backend;\n\
+            proxy_set_header Host $host;\n\
+            proxy_set_header X-Real-IP $remote_addr;\n\
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
+            proxy_set_header X-Forwarded-Proto $scheme;\n\
+        }\n\
+\n\
+        # Serve frontend for all other requests\n\
+        location / {\n\
+            proxy_pass http://frontend;\n\
+            proxy_set_header Host $host;\n\
+            proxy_set_header X-Real-IP $remote_addr;\n\
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
+            proxy_set_header X-Forwarded-Proto $scheme;\n\
+            proxy_http_version 1.1;\n\
+            proxy_set_header Upgrade $http_upgrade;\n\
+            proxy_set_header Connection "upgrade";\n\
+            proxy_cache_bypass $http_upgrade;\n\
+        }\n\
+    }\n\
+}\n\
+NGINX_EOF\n\
+sed -i "s/NGINX_PORT_PLACEHOLDER/$NGINX_PORT/g" /etc/nginx/nginx.conf\n\
 \n\
 # Run backend migrations\n\
 echo "Running database migrations..."\n\
@@ -101,8 +159,13 @@ cd ../frontend\n\
 PORT=3000 HOSTNAME=0.0.0.0 node server.js &\n\
 FRONTEND_PID=$!\n\
 \n\
-# Wait for both processes\n\
-wait $BACKEND_PID $FRONTEND_PID\n\
+# Start nginx reverse proxy\n\
+echo "Starting nginx reverse proxy on port $NGINX_PORT..."\n\
+nginx -g "daemon off;" &\n\
+NGINX_PID=$!\n\
+\n\
+# Wait for all processes\n\
+wait $BACKEND_PID $FRONTEND_PID $NGINX_PID\n\
 ' > ./start.sh && chmod +x ./start.sh
 
 # Run startup script

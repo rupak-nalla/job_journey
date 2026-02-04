@@ -148,13 +148,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS Settings
 # In development, allow all origins for easier debugging
 # In production, use CORS_ALLOWED_ORIGINS with specific domains
+# Note: When using nginx reverse proxy, frontend and backend are on same origin, so CORS is less critical
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
-    CORS_ALLOWED_ORIGINS = os.getenv(
-        'CORS_ALLOWED_ORIGINS',
-        'http://localhost:3000,http://127.0.0.1:3000'
-    ).split(',')
+    cors_origins = os.getenv('CORS_ALLOWED_ORIGINS')
+    if cors_origins:
+        CORS_ALLOWED_ORIGINS = cors_origins.split(',')
+    else:
+        # Default: allow all origins (safe when behind nginx proxy)
+        CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 

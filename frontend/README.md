@@ -1,105 +1,86 @@
-# Job Application Tracker - Frontend
+# Job Tracker - Frontend
 
-A modern, production-ready job application tracking system built with Next.js 15 and React 19.
+Frontend application for Job Tracker built with Next.js 15 and React 19.
 
-## Features
+## Overview
 
-- 🎨 Modern UI with custom color palette
-- 📱 Fully responsive design
-- ⚡ Fast and optimized
-- 🔒 Production-ready with error handling
-- 📊 Real-time statistics and tracking
-- 📄 Resume upload and management
-- 🔄 Status tracking (Applied, Ghosted, Interviewing, Assessment, Offered)
+Modern, responsive frontend with authentication, dashboard, application management, and support features.
 
-## Color Palette
-
-The application uses a professional blue gradient palette:
-- **Primary Dark**: `#03045e`
-- **Primary**: `#0077b6`
-- **Primary Light**: `#00b4d8`
-- **Accent**: `#90e0ef`
-- **Accent Light**: `#caf0f8`
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
-
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
-### Installation
+### Setup
 
-1. Install dependencies:
-```bash
-npm install
-```
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-2. Create a `.env.local` file (copy from `.env.example`):
-```bash
-cp .env.example .env.local
-# Edit .env.local and set your backend API URL
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
-```
+2. **Configure environment**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local and set NEXT_PUBLIC_API_URL
+   ```
 
-3. Run the development server:
-```bash
-npm run dev
-```
+3. **Run development server**
+   ```bash
+   npm run dev
+   ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Production Build
-
-1. Build the application:
-```bash
-npm run build
-```
-
-2. Start the production server:
-```bash
-npm start
-```
+4. **Access application**
+   - http://localhost:3000
 
 ## Environment Variables
 
-- `NEXT_PUBLIC_API_URL` - Backend API URL (required in production, defaults to http://127.0.0.1:8000 in development only)
+- `NEXT_PUBLIC_API_URL` - Backend API URL (required in production)
 
-**⚠️ Security Note**: Never commit `.env.local` files to version control. Always use `.env.example` as a template.
+See [ENV_SETUP.md](../ENV_SETUP.md) for detailed configuration.
 
 ## Project Structure
 
 ```
 frontend/
 ├── src/
-│   ├── app/              # Next.js app directory
-│   │   ├── page.js       # Main dashboard
-│   │   ├── add-application/  # Add application page
-│   │   └── application/  # Application detail pages
-│   ├── components/       # React components
-│   ├── config/           # Configuration files
-│   └── utils/            # Utility functions
-├── public/               # Static assets
+│   ├── app/              # Next.js pages
+│   │   ├── dashboard/    # Main dashboard
+│   │   ├── login/        # Authentication
+│   │   ├── register/
+│   │   ├── add-application/
+│   │   ├── application/  # Application details
+│   │   └── support/      # Support form
+│   ├── components/       # Reusable components
+│   ├── contexts/         # React contexts (Auth)
+│   └── config/           # API configuration
 └── package.json
 ```
 
-## Production Optimizations
+## Available Scripts
 
-- ✅ Error boundaries for error handling
-- ✅ API configuration with environment variables
-- ✅ SEO optimization with meta tags
-- ✅ Security headers
-- ✅ Image optimization
-- ✅ Code splitting and lazy loading
-- ✅ Compression enabled
-- ✅ Standalone output for deployment
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run test:ci` - Run tests
+
+## Features
+
+- JWT-based authentication
+- Responsive dashboard with statistics
+- Application CRUD operations
+- Interview scheduling
+- Resume upload
+- Support contact form
+- Consistent UI with JobTracker branding
+
+## Testing
+
+```bash
+npm run test:ci
+```
 
 ## Deployment
 
-The application is configured for production deployment with:
-- Standalone output mode
-- Optimized builds
-- Security headers
-- Error boundaries
-
-Deploy to platforms like Vercel, Netlify, or any Node.js hosting service.
+Deploy to Vercel, Netlify, or any Node.js hosting service. See [DEPLOYMENT.md](../DEPLOYMENT.md) for details.

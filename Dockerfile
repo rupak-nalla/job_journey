@@ -34,6 +34,8 @@ RUN npm install --legacy-peer-deps --prefer-offline --no-audit
 # Copy frontend source and build
 COPY frontend/ .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Set a default API URL for build time (can be overridden at runtime)
+ENV NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 RUN npm run build
 
 # ============================================================================

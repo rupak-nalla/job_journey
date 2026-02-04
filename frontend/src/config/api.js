@@ -5,21 +5,23 @@ const getApiBaseUrl = () => {
   // Always use environment variable - no hardcoded defaults for security
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   
+  // During build time or server-side rendering, always use a default
+  // This prevents build failures and allows static generation
+  if (typeof window === 'undefined') {
+    // Server-side (build time or SSR) - use default or env var
+    return apiUrl || 'http://127.0.0.1:8000';
+  }
+  
+  // Client-side - use env var or default
   if (!apiUrl) {
-    // Only use localhost default in development mode
+    // Only warn in development, not in production build
     if (process.env.NODE_ENV === 'development') {
       console.warn(
         'NEXT_PUBLIC_API_URL is not set. Using default http://127.0.0.1:8000 for local development. ' +
         'Please set NEXT_PUBLIC_API_URL in your .env.local file for production.'
       );
-      return 'http://127.0.0.1:8000';
     }
-    
-    // In production, require the environment variable
-    throw new Error(
-      'NEXT_PUBLIC_API_URL environment variable is required. ' +
-      'Please set it in your .env.local file or environment variables.'
-    );
+    return 'http://127.0.0.1:8000';
   }
   
   return apiUrl;

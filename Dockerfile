@@ -60,16 +60,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Copy backend from builder
 COPY --from=backend-builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=backend-builder /usr/local/bin /usr/local/bin
-COPY backend/ /app/backend/
+COPY backend/ ./backend/
 
 # Copy frontend build from builder
-COPY --from=frontend-builder /app/frontend/.next/standalone /app/frontend/
-COPY --from=frontend-builder /app/frontend/.next/static /app/frontend/.next/static
-COPY --from=frontend-builder /app/frontend/public /app/frontend/public
+COPY --from=frontend-builder /app/frontend/.next/standalone ./frontend/
+COPY --from=frontend-builder /app/frontend/.next/static ./frontend/.next/static
+COPY --from=frontend-builder /app/frontend/public ./frontend/public
 
 # Create necessary directories
-RUN mkdir -p /app/backend/media/resumes && \
-    mkdir -p /app/frontend
+RUN mkdir -p ./backend/media/resumes && \
+    mkdir -p ./frontend
 
 # Set working directory to backend for migrations
 WORKDIR /app/backend
@@ -95,13 +95,13 @@ BACKEND_PID=$!\n\
 \n\
 # Start frontend\n\
 echo "Starting frontend server..."\n\
-cd /app/frontend\n\
+cd ./frontend\n\
 PORT=3000 HOSTNAME=0.0.0.0 node server.js &\n\
 FRONTEND_PID=$!\n\
 \n\
 # Wait for both processes\n\
 wait $BACKEND_PID $FRONTEND_PID\n\
-' > /app/start.sh && chmod +x /app/start.sh
+' > ./start.sh && chmod +x ./start.sh
 
 # Run startup script
-CMD ["/app/start.sh"]
+CMD ["./start.sh"]

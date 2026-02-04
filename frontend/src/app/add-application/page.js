@@ -4,6 +4,15 @@ import { useRouter } from "next/navigation";
 import { API_ENDPOINTS, getAuthHeaders } from "@/config/api";
 import { useAuth } from "@/contexts/AuthContext";
 
+// ─── Helper Functions ───────────────────────────────────────
+const getLocalISODate = (d = new Date()) => {
+  // Get local date string in YYYY-MM-DD format
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // ─── Icons (matching dashboard) ───────────────────────────────
 const Icon = ({ name, size = 18, color = "currentColor" }) => {
   const paths = {
@@ -22,6 +31,9 @@ const Icon = ({ name, size = 18, color = "currentColor" }) => {
   );
 };
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic';
+
 export default function AddJobApplication() {
   const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -31,7 +43,7 @@ export default function AddJobApplication() {
     company: "",
     position: "",
     status: "Applied",
-    applied_date: new Date().toISOString().split("T")[0],
+    applied_date: getLocalISODate(),
     resume: null,
     job_description: "",
     contact_email: "",
@@ -40,7 +52,7 @@ export default function AddJobApplication() {
     notes: "",
   });
   const [interviewData, setInterviewData] = useState({
-    date: new Date().toISOString().split("T")[0],
+    date: getLocalISODate(),
     time: "10:00",
     type: "Technical",
   });

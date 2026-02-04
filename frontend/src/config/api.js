@@ -16,8 +16,8 @@ const getApiBaseUrl = () => {
     if (apiUrl) {
       return apiUrl;
     }
-    // Otherwise use default for build time (prevents build failures)
-    return 'http://127.0.0.1:8000';
+    // Otherwise use production URL for build time (prevents build failures)
+    return 'https://job-tracker-backend-2ply.onrender.com';
   }
   
   // Client-side - use environment variable or fallback to localhost
@@ -37,9 +37,9 @@ const getApiBaseUrl = () => {
     // Local development - use localhost backend
     return 'http://127.0.0.1:8000';
   } else {
-    // Production but NEXT_PUBLIC_API_URL not set - this should not happen
-    console.error('NEXT_PUBLIC_API_URL is not set in production! Using localhost fallback.');
-    return 'http://127.0.0.1:8000';
+    // Production but NEXT_PUBLIC_API_URL not set - use production backend URL
+    console.warn('NEXT_PUBLIC_API_URL is not set in production! Using default production URL.');
+    return 'https://job-tracker-backend-2ply.onrender.com';
   }
 };
 
@@ -49,7 +49,7 @@ const getBaseUrl = () => {
   // Force runtime evaluation - check if we're in browser
   if (typeof window === 'undefined') {
     // Server-side (SSR/build) - return default
-    return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+    return process.env.NEXT_PUBLIC_API_URL || 'https://job-tracker-backend-2ply.onrender.com';
   }
   
   // Client-side - always evaluate fresh
@@ -85,7 +85,7 @@ API_ENDPOINTS.DELETE_JOB_APPLICATION = (id) => `${getBaseUrl()}/api/applications
 // Export API_BASE_URL - this is evaluated at module load time for backward compatibility
 // Note: For runtime evaluation, use getBaseUrl() directly or access API_ENDPOINTS getters
 // In production, this will be the build-time default, but API_ENDPOINTS getters evaluate at runtime
-export const API_BASE_URL = typeof window !== 'undefined' ? getBaseUrl() : 'http://127.0.0.1:8000';
+export const API_BASE_URL = typeof window !== 'undefined' ? getBaseUrl() : 'https://job-tracker-backend-2ply.onrender.com';
 
 // Helper function to get auth headers
 export const getAuthHeaders = (includeContentType = true) => {

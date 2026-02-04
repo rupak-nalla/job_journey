@@ -15,7 +15,7 @@ COPY . .
 
 # Set build-time environment variable (can be overridden at runtime)
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+ENV NEXT_PUBLIC_API_URL=https://job-tracker-backend-2ply.onrender.com
 
 # Build the application
 RUN npm run build

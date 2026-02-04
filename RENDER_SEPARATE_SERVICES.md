@@ -42,9 +42,11 @@ DEFAULT_FROM_EMAIL=rupaknalla1034@gmail.com
 
 ### Environment Variables:
 ```
-NEXT_PUBLIC_API_URL=https://<your-backend-url>.onrender.com
+NEXT_PUBLIC_API_URL=https://job-tracker-backend-2ply.onrender.com
 NODE_ENV=production
 ```
+
+**Note**: The Dockerfile already has the production backend URL as default, but you should still set `NEXT_PUBLIC_API_URL` in Render to ensure it's correct.
 
 ## Important Notes
 

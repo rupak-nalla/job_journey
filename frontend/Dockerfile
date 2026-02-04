@@ -29,12 +29,18 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy built application from builder
+# Next.js standalone build outputs to .next/standalone in the WORKDIR
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Expose port
+# Expose port (Render will provide PORT via environment variable)
 EXPOSE 3000
 
-# Start the application
+# Set default port (Render's PORT env var will override this)
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Start the production server (NOT dev server!)
+# Next.js standalone server automatically uses PORT and HOSTNAME env vars
 CMD ["node", "server.js"]

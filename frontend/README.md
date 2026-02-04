@@ -37,6 +37,8 @@ npm install
 
 2. Create a `.env.local` file (copy from `.env.example`):
 ```bash
+cp .env.example .env.local
+# Edit .env.local and set your backend API URL
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
@@ -61,7 +63,9 @@ npm start
 
 ## Environment Variables
 
-- `NEXT_PUBLIC_API_URL` - Backend API URL (default: http://127.0.0.1:8000)
+- `NEXT_PUBLIC_API_URL` - Backend API URL (required in production, defaults to http://127.0.0.1:8000 in development only)
+
+**⚠️ Security Note**: Never commit `.env.local` files to version control. Always use `.env.example` as a template.
 
 ## Project Structure
 

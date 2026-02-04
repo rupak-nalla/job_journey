@@ -25,12 +25,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-i2=@n$^!%!=+l1(03cylaygdefok16&s8&a-290kr9*uskcnw@')
+# SECRET_KEY must be set in environment variables - no default for security
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError(
+        "SECRET_KEY environment variable is not set. "
+        "Please set it in your .env file. "
+        "Generate one using: python -c \"from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())\""
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,192.168.1.5').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -146,7 +153,7 @@ if DEBUG:
 else:
     CORS_ALLOWED_ORIGINS = os.getenv(
         'CORS_ALLOWED_ORIGINS',
-        'http://localhost:3000,http://127.0.0.1:3000,http://192.168.1.5:3000'
+        'http://localhost:3000,http://127.0.0.1:3000'
     ).split(',')
 
 CORS_ALLOW_CREDENTIALS = True
@@ -206,7 +213,13 @@ SIMPLE_JWT = {
 
 # Email Settings
 # Support email (recipient for support requests)
-SUPPORT_EMAIL = os.getenv('SUPPORT_EMAIL', 'rupaknalla1034@gmail.com')
+# Must be set in environment variables - no default for security
+SUPPORT_EMAIL = os.getenv('SUPPORT_EMAIL')
+if not SUPPORT_EMAIL:
+    raise ValueError(
+        "SUPPORT_EMAIL environment variable is not set. "
+        "Please set it in your .env file."
+    )
 
 # Email backend configuration
 # Using SMTP backend to send emails via Gmail
@@ -216,12 +229,31 @@ EMAIL_BACKEND = os.getenv(
 )
 
 # SMTP Configuration for Gmail
+# Email credentials must be set in environment variables - no defaults for security
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'rupaknalla1034@gmail.com')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'avaw lfvt rgiw wsoj')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'rupaknalla1034@gmail.com')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
+# Validate email configuration if SMTP backend is used
+if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
+    if not EMAIL_HOST_USER:
+        raise ValueError(
+            "EMAIL_HOST_USER environment variable is not set. "
+            "Please set it in your .env file."
+        )
+    if not EMAIL_HOST_PASSWORD:
+        raise ValueError(
+            "EMAIL_HOST_PASSWORD environment variable is not set. "
+            "Please set it in your .env file."
+        )
+    if not DEFAULT_FROM_EMAIL:
+        raise ValueError(
+            "DEFAULT_FROM_EMAIL environment variable is not set. "
+            "Please set it in your .env file."
+        )
 
 # Security Settings (Production)
 if not DEBUG:

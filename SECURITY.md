@@ -1,208 +1,107 @@
-# Security Policy
+# Security Guidelines
 
-## Supported Versions
+This document outlines security best practices for the Job Tracker application.
 
-We release patches for security vulnerabilities for the following versions:
+## Environment Variables
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+### ⚠️ Critical Security Rules
 
-## Reporting a Vulnerability
+1. **Never commit `.env` or `.env.local` files** - These files are already in `.gitignore`
+2. **Never hardcode secrets in source code** - All sensitive values must use environment variables
+3. **Use `.env.example` files as templates** - These are safe to commit (no real secrets)
+4. **Rotate secrets regularly** - Especially in production environments
 
-The Job Application Tracker team takes security bugs seriously. We appreciate your efforts to responsibly disclose your findings.
+## Backend Security
 
-### Where to Report
+### Required Environment Variables
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+The following environment variables **must** be set (no hardcoded defaults):
 
-Instead, please report them via email to: security@example.com
+- `SECRET_KEY` - Django secret key (required, no default)
+- `SUPPORT_EMAIL` - Support email address (required, no default)
+- `EMAIL_HOST_USER` - SMTP email user (required when using SMTP)
+- `EMAIL_HOST_PASSWORD` - SMTP email password (required when using SMTP)
+- `DEFAULT_FROM_EMAIL` - Default sender email (required when using SMTP)
 
-### What to Include
+### Optional Environment Variables (with safe defaults)
 
-Please include the following information in your report:
+- `DEBUG` - Debug mode (defaults to `True` for development)
+- `ALLOWED_HOSTS` - Allowed hostnames (defaults to `localhost,127.0.0.1`)
+- `CORS_ALLOWED_ORIGINS` - CORS origins (defaults to localhost URLs)
+- `EMAIL_BACKEND` - Email backend (defaults to SMTP)
+- `EMAIL_HOST` - SMTP host (defaults to `smtp.gmail.com`)
+- `EMAIL_PORT` - SMTP port (defaults to `587`)
 
-- Type of issue (e.g., SQL injection, cross-site scripting, etc.)
-- Full paths of source file(s) related to the issue
-- The location of the affected source code (tag/branch/commit or direct URL)
-- Any special configuration required to reproduce the issue
-- Step-by-step instructions to reproduce the issue
-- Proof-of-concept or exploit code (if possible)
-- Impact of the issue, including how an attacker might exploit it
+### Security Features
 
-### Response Timeline
+- **Secret Key Validation**: Application will fail to start if `SECRET_KEY` is not set
+- **Email Configuration Validation**: Application will fail to start if email credentials are missing when using SMTP
+- **No Hardcoded Secrets**: All sensitive values are read from environment variables only
 
-- **Initial Response**: Within 48 hours
-- **Status Update**: Within 7 days
-- **Fix Timeline**: Depends on severity
-  - Critical: 24-48 hours
-  - High: 7 days
-  - Medium: 30 days
-  - Low: 90 days
+## Frontend Security
 
-### Disclosure Policy
+### Environment Variables
 
-- Security issues are fixed in private
-- Once fixed, we'll coordinate disclosure with you
-- We prefer coordinated disclosure (30-90 days after fix)
-- We'll credit you in our security advisories (unless you prefer to remain anonymous)
+- `NEXT_PUBLIC_API_URL` - Backend API URL
+  - **Development**: Defaults to `http://127.0.0.1:8000` with a warning
+  - **Production**: **Required** - Application will fail to start if not set
 
-## Security Best Practices
+### Client-Side Security
 
-### For Developers
+- API URLs are only exposed client-side (required for Next.js)
+- Authentication tokens are stored in `localStorage` (consider httpOnly cookies for production)
+- No sensitive backend credentials are exposed to the frontend
 
-1. **Environment Variables**
-   - Never commit `.env` files
-   - Use `.env.example` for templates
-   - Keep `SECRET_KEY` secure
-   - Rotate keys regularly
+## Production Deployment
 
-2. **Dependencies**
-   - Keep dependencies updated
-   - Run `pip list --outdated` regularly
-   - Use `npm audit` for frontend
-   - Review security advisories
+### Before Deploying
 
-3. **Database**
-   - Use Django ORM to prevent SQL injection
-   - Never use raw SQL with user input
-   - Sanitize all inputs
-
-4. **File Uploads**
-   - Validate file types
-   - Limit file sizes
-   - Scan uploaded files
-   - Store outside web root
-
-5. **Authentication**
-   - Use Django's authentication system
-   - Implement rate limiting
-   - Use strong password policies
-   - Enable CSRF protection
-
-### For Production Deployments
-
-1. **Django Settings**
-   ```python
-   DEBUG = False
-   SECRET_KEY = os.environ.get('SECRET_KEY')
-   ALLOWED_HOSTS = ['yourdomain.com']
-   SECURE_SSL_REDIRECT = True
-   SESSION_COOKIE_SECURE = True
-   CSRF_COOKIE_SECURE = True
+1. **Generate a new SECRET_KEY**:
+   ```bash
+   python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
    ```
 
-2. **CORS Configuration**
-   - Only allow trusted origins
-   - Don't use `*` in production
-   - Update `CORS_ALLOWED_ORIGINS`
+2. **Set DEBUG=False** in production environment
 
-3. **HTTPS**
-   - Always use HTTPS in production
-   - Redirect HTTP to HTTPS
-   - Use HSTS headers
+3. **Update ALLOWED_HOSTS** with your production domain
 
-4. **Database**
-   - Use PostgreSQL in production
-   - Regular backups
-   - Encrypted connections
+4. **Configure CORS_ALLOWED_ORIGINS** with your production frontend URL
 
-5. **File Storage**
-   - Use S3 or similar for production
-   - Set proper permissions
-   - Scan uploaded files
+5. **Use secure email credentials** (consider using environment variable management services)
 
-6. **Monitoring**
-   - Set up error monitoring (Sentry, etc.)
-   - Monitor failed login attempts
-   - Track suspicious activity
-   - Regular security audits
+6. **Set NEXT_PUBLIC_API_URL** to your production backend URL
 
-## Known Security Considerations
+### Environment Variable Management
 
-### Current Implementation
+For production, consider using:
+- **AWS Secrets Manager**
+- **Azure Key Vault**
+- **HashiCorp Vault**
+- **Kubernetes Secrets**
+- **Docker Secrets**
 
-1. **SQLite in Production**
-   - SQLite is used by default
-   - For production, consider PostgreSQL
-   - Better concurrency handling
-   - More robust for multiple users
+## Code Review Checklist
 
-2. **File Uploads**
-   - Resume files stored locally
-   - Consider cloud storage for production
-   - Implement virus scanning
-   - Add file size limits
+When reviewing code, ensure:
 
-3. **Rate Limiting**
-   - Not currently implemented
-   - Recommended for production
-   - Prevents brute force attacks
-   - Use Django Ratelimit or similar
+- ✅ No hardcoded passwords, API keys, or secrets
+- ✅ All sensitive values use `os.getenv()` or `process.env`
+- ✅ No secrets in commit history (use `git-secrets` or similar tools)
+- ✅ `.env` files are in `.gitignore`
+- ✅ `.env.example` files exist and are up-to-date
+- ✅ Error messages don't leak sensitive information
+- ✅ Logs don't contain passwords or tokens
 
-4. **Input Validation**
-   - Frontend validation in place
-   - Backend validation via DRF
-   - Consider additional sanitization
-   - Use Django validators
+## Reporting Security Issues
 
-5. **Session Management**
-   - Django default sessions
-   - Consider Redis for production
-   - Set appropriate timeouts
-   - Implement logout on all devices
-
-## Security Checklist
-
-### Before Deployment
-
-- [ ] Change `SECRET_KEY` from default
-- [ ] Set `DEBUG = False`
-- [ ] Configure `ALLOWED_HOSTS`
-- [ ] Enable HTTPS
-- [ ] Set secure cookie flags
-- [ ] Update `CORS_ALLOWED_ORIGINS`
-- [ ] Review file upload settings
-- [ ] Enable CSRF protection
-- [ ] Set up error monitoring
-- [ ] Review database permissions
-- [ ] Implement rate limiting
-- [ ] Set up backups
-- [ ] Review third-party packages
-- [ ] Enable security headers
-- [ ] Test authentication flows
-
-### Regular Maintenance
-
-- [ ] Update dependencies monthly
-- [ ] Review security advisories
-- [ ] Audit user permissions
-- [ ] Check logs for suspicious activity
-- [ ] Test backup restoration
-- [ ] Review access logs
-- [ ] Rotate secrets/keys
-- [ ] Update SSL certificates
-
-## Vulnerability Disclosure Examples
-
-### Severity Levels
-
-**Critical**: Remote code execution, SQL injection, authentication bypass
-**High**: XSS, CSRF, privilege escalation
-**Medium**: Information disclosure, weak encryption
-**Low**: Missing security headers, outdated dependencies
+If you discover a security vulnerability, please:
+1. **Do NOT** create a public issue
+2. Contact the maintainers directly
+3. Provide details about the vulnerability
+4. Allow time for a fix before public disclosure
 
 ## Additional Resources
 
+- [Django Security Best Practices](https://docs.djangoproject.com/en/stable/topics/security/)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Django Security Documentation](https://docs.djangoproject.com/en/stable/topics/security/)
-- [Next.js Security](https://nextjs.org/docs/advanced-features/security-headers)
-- [CWE Database](https://cwe.mitre.org/)
-
-## Contact
-
-For security concerns: security@example.com
-For general issues: [GitHub Issues](https://github.com/yourusername/job-tracker/issues)
-
-Thank you for helping keep Job Application Tracker secure!
+- [Next.js Security Headers](https://nextjs.org/docs/advanced-features/security-headers)

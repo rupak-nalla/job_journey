@@ -2,14 +2,27 @@
 // In production, these should be set via environment variables
 
 const getApiBaseUrl = () => {
-  // Always prefer an explicit environment variable if provided
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
+  // Always use environment variable - no hardcoded defaults for security
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  
+  if (!apiUrl) {
+    // Only use localhost default in development mode
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        'NEXT_PUBLIC_API_URL is not set. Using default http://127.0.0.1:8000 for local development. ' +
+        'Please set NEXT_PUBLIC_API_URL in your .env.local file for production.'
+      );
+      return 'http://127.0.0.1:8000';
+    }
+    
+    // In production, require the environment variable
+    throw new Error(
+      'NEXT_PUBLIC_API_URL environment variable is required. ' +
+      'Please set it in your .env.local file or environment variables.'
+    );
   }
-
-  // Default for local development: Django running on localhost:8000
-  // This ensures requests go to the backend even when the frontend runs on a different host/port.
-  return 'http://127.0.0.1:8000';
+  
+  return apiUrl;
 };
 
 export const API_BASE_URL = getApiBaseUrl();

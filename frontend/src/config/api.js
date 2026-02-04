@@ -1,45 +1,54 @@
 // API Configuration
-// In production, these should be set via environment variables
+// 
+// Behavior:
+// - If NEXT_PUBLIC_API_URL is explicitly set, it will be used
+// - In local development (localhost), defaults to http://127.0.0.1:8000
+// - In production (deployed), uses relative URLs (same origin) which works with nginx reverse proxy
+// - Relative URLs ensure requests go through the same domain, avoiding CORS issues
 
 const getApiBaseUrl = () => {
-  // Always use environment variable - no hardcoded defaults for security
+  // Always use environment variable if explicitly set
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   
-  // During build time or server-side rendering, always use a default
-  // This prevents build failures and allows static generation
+  // During build time or server-side rendering
   if (typeof window === 'undefined') {
-    // Server-side (build time or SSR) - use default or env var
-    return apiUrl || 'http://127.0.0.1:8000';
-  }
-  
-  // Client-side - check if we should use relative URLs (same origin)
-  // If no API URL is set and we're in production, use relative URLs
-  // This works when frontend and backend are served through the same proxy
-  if (!apiUrl) {
-    // In production, if no API URL is set, assume same origin (nginx proxy)
-    // Check if we're running in production by checking the hostname
-    // If it's not localhost/127.0.0.1, assume production
-    const isProduction = window.location.hostname !== 'localhost' && 
-                         window.location.hostname !== '127.0.0.1' &&
-                         !window.location.hostname.startsWith('192.168.');
-    
-    if (isProduction || process.env.NODE_ENV === 'production') {
-      return ''; // Empty string = relative URLs (same origin)
+    // If API URL is explicitly set, use it
+    if (apiUrl) {
+      return apiUrl;
     }
-    
-    // Development mode - use localhost
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(
-        'NEXT_PUBLIC_API_URL is not set. Using default http://127.0.0.1:8000 for local development. ' +
-        'Please set NEXT_PUBLIC_API_URL in your .env.local file for production.'
-      );
-      return 'http://127.0.0.1:8000';
-    }
-    
+    // Otherwise use default for build time (prevents build failures)
     return 'http://127.0.0.1:8000';
   }
   
-  return apiUrl;
+  // Client-side - determine the API URL based on environment
+  if (apiUrl) {
+    // Explicitly set API URL - use it
+    return apiUrl;
+  }
+  
+  // No explicit API URL set - determine based on current environment
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  const isLocalhost = hostname === 'localhost' || 
+                      hostname === '127.0.0.1' || 
+                      hostname.startsWith('192.168.') ||
+                      hostname.startsWith('10.') ||
+                      hostname.startsWith('172.');
+  
+  if (isLocalhost) {
+    // Local development - use localhost backend
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        'NEXT_PUBLIC_API_URL is not set. Using default http://127.0.0.1:8000 for local development.'
+      );
+    }
+    return 'http://127.0.0.1:8000';
+  } else {
+    // Production/deployed environment
+    // Since we're using nginx reverse proxy, use relative URLs (same origin)
+    // This ensures requests go through the same domain and nginx routes them correctly
+    return ''; // Empty string = relative URLs (same origin)
+  }
 };
 
 // Helper to get base URL at runtime (evaluates each time)

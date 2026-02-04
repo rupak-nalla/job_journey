@@ -13,12 +13,21 @@ def add_job_application(request):
     try:
         resume_file = request.FILES.get('resume')  # Handle file
         data = request.data
-
+        
+        # Validate required fields before attempting to create
+        if not data.get("company") or not data.get("position"):
+            return Response(
+                {"error": "Company and position are required fields."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create job application with validated data
+        # Status defaults to "Applied" if not provided (as per model default)
         job = JobApplication.objects.create(
             user=request.user,  # Link to authenticated user
             company=data.get("company"),
             position=data.get("position"),
-            status=data.get("status"),
+            status=data.get("status", "Applied"),  # Default to "Applied" if not provided
             applied_date=data.get("applied_date"),
             resume=resume_file,
             job_description=data.get("job_description"),

@@ -7,22 +7,26 @@
 // - Relative URLs ensure requests go through the same domain, avoiding CORS issues
 
 const getApiBaseUrl = () => {
-  // Always use environment variable if explicitly set
+  // Production backend URL (hardcoded)
+  const PRODUCTION_API_URL = 'https://job-tracker-dnai.onrender.com';
+  
+  // Check if NEXT_PUBLIC_API_URL is explicitly set (for override)
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrlIsSet = apiUrl !== undefined && apiUrl !== null;
   
   // During build time or server-side rendering
   if (typeof window === 'undefined') {
     // If API URL is explicitly set, use it
-    if (apiUrl) {
+    if (apiUrlIsSet) {
       return apiUrl;
     }
-    // Otherwise use default for build time (prevents build failures)
-    return 'http://127.0.0.1:8000';
+    // Otherwise use production URL for build time
+    return PRODUCTION_API_URL;
   }
   
   // Client-side - determine the API URL based on environment
-  if (apiUrl) {
-    // Explicitly set API URL - use it
+  if (apiUrlIsSet) {
+    // Explicitly set API URL - use it (allows override)
     return apiUrl;
   }
   
@@ -36,24 +40,10 @@ const getApiBaseUrl = () => {
   
   if (isLocalhost) {
     // Local development - use localhost backend
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(
-        'NEXT_PUBLIC_API_URL is not set. Using default http://127.0.0.1:8000 for local development.'
-      );
-    }
     return 'http://127.0.0.1:8000';
   } else {
-    // Production/deployed environment (any hostname that's not localhost)
-    // Since we're using nginx reverse proxy, use relative URLs (same origin)
-    // This ensures requests go through the same domain and nginx routes them correctly
-    const baseUrl = ''; // Empty string = relative URLs (same origin)
-    console.log('[API Config] Production detected!', {
-      hostname,
-      baseUrl,
-      usingRelativeUrls: true,
-      fullUrl: `${baseUrl}/api/auth/login/`
-    });
-    return baseUrl;
+    // Production/deployed environment - use hardcoded production URL
+    return PRODUCTION_API_URL;
   }
 };
 

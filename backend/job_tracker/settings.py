@@ -156,7 +156,8 @@ else:
     if cors_origins_env:
         CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins_env.split(',')]
     else:
-        # Default: allow all origins (not recommended for production, but safe if behind proxy)
+        # Default: allow all origins for separate services deployment
+        # This is safe since we're using JWT authentication
         CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True

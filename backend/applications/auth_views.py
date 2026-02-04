@@ -20,6 +20,10 @@ User = get_user_model()
 def register(request):
     """Register a new user"""
     try:
+        # Log request for debugging
+        logger.debug(f"Register request received. Method: {request.method}, Content-Type: {request.content_type}")
+        logger.debug(f"Request data: {request.data}")
+        
         username = request.data.get('username')
         email = request.data.get('email')
         password = request.data.get('password')
@@ -107,6 +111,10 @@ def register(request):
 def login(request):
     """Login user and return JWT tokens"""
     try:
+        # Log request for debugging
+        logger.debug(f"Login request received. Method: {request.method}, Content-Type: {request.content_type}")
+        logger.debug(f"Request data keys: {list(request.data.keys()) if hasattr(request.data, 'keys') else 'No data'}")
+        
         username = request.data.get('username')
         password = request.data.get('password')
 

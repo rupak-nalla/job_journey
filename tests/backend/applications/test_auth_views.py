@@ -316,3 +316,8 @@ class AuthViewsTestCase(TestCase):
         response = self.client.post(self.refresh_token_url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def tearDown(self):
+        """Clean up test data after each test"""
+        # Delete all test users (Django's TestCase handles DB rollback, but explicit cleanup is good practice)
+        User.objects.filter(username__in=['testuser', 'newuser', 'duplicateuser']).delete()

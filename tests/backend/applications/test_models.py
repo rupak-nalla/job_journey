@@ -2,15 +2,25 @@
 Tests for applications models
 """
 from django.test import TestCase
+from django.contrib.auth import get_user_model
 from datetime import date, time, timedelta
 from applications.models import JobApplication, Interview
+import os
+
+User = get_user_model()
 
 
 class JobApplicationModelTest(TestCase):
     """Test cases for JobApplication model"""
     
     def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
         self.job_app = JobApplication.objects.create(
+            user=self.user,
             company="Test Company",
             position="Software Engineer",
             status="Applied",
@@ -31,12 +41,13 @@ class JobApplicationModelTest(TestCase):
     
     def test_job_application_str(self):
         """Test string representation"""
-        expected = "Test Company - Software Engineer"
+        expected = f"{self.user.username} - Test Company - Software Engineer"
         self.assertEqual(str(self.job_app), expected)
     
     def test_default_status(self):
         """Test default status is Applied"""
         job = JobApplication.objects.create(
+            user=self.user,
             company="Company 2",
             position="Developer"
         )
@@ -47,6 +58,7 @@ class JobApplicationModelTest(TestCase):
         valid_statuses = ["Applied", "Ghosted", "Interviewing", "Assessment", "Offered"]
         for status_choice in valid_statuses:
             job = JobApplication.objects.create(
+                user=self.user,
                 company=f"Company {status_choice}",
                 position="Engineer",
                 status=status_choice
@@ -56,6 +68,7 @@ class JobApplicationModelTest(TestCase):
     def test_optional_fields(self):
         """Test optional fields can be null"""
         job = JobApplication.objects.create(
+            user=self.user,
             company="Minimal Company",
             position="Position"
         )
@@ -64,13 +77,38 @@ class JobApplicationModelTest(TestCase):
         self.assertIsNone(job.contact_phone)
         self.assertIsNone(job.company_website)
         self.assertIsNone(job.notes)
+    
+    def tearDown(self):
+        """Clean up test data after each test"""
+        # Delete all job applications (cascades to interviews)
+        JobApplication.objects.filter(user=self.user).delete()
+        # Delete uploaded files
+        self._cleanup_media_files()
+    
+    def _cleanup_media_files(self):
+        """Remove uploaded files from media directory"""
+        apps_with_resumes = JobApplication.objects.filter(resume__isnull=False)
+        for app in apps_with_resumes:
+            if app.resume:
+                file_path = app.resume.path
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                    except OSError:
+                        pass  # File might already be deleted
 
 
 class InterviewModelTest(TestCase):
     """Test cases for Interview model"""
     
     def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
         self.job_app = JobApplication.objects.create(
+            user=self.user,
             company="Test Company",
             position="Software Engineer",
             status="Interviewing"
@@ -112,3 +150,22 @@ class InterviewModelTest(TestCase):
         self.job_app.delete()
         with self.assertRaises(Interview.DoesNotExist):
             Interview.objects.get(id=interview_id)
+    
+    def tearDown(self):
+        """Clean up test data after each test"""
+        # Delete all job applications (cascades to interviews)
+        JobApplication.objects.filter(user=self.user).delete()
+        # Delete uploaded files
+        self._cleanup_media_files()
+    
+    def _cleanup_media_files(self):
+        """Remove uploaded files from media directory"""
+        apps_with_resumes = JobApplication.objects.filter(resume__isnull=False)
+        for app in apps_with_resumes:
+            if app.resume:
+                file_path = app.resume.path
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                    except OSError:
+                        pass  # File might already be deleted

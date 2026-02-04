@@ -1,27 +1,47 @@
 """
 Tests for applications API views
 """
-from django.test import TestCase, Client
+from django.test import TestCase
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import date, time, timedelta
 from applications.models import JobApplication, Interview
+from django.conf import settings
 import json
+import os
+import shutil
+
+User = get_user_model()
 
 
 class APIEndpointTests(TestCase):
     """Test cases for API endpoints"""
     
     def setUp(self):
-        self.client = Client()
+        self.client = APIClient()
+        # Create test user
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        # Authenticate the client
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
         self.job_app1 = JobApplication.objects.create(
+            user=self.user,
             company="Company A",
             position="Developer",
             status="Applied",
             applied_date=date.today()
         )
         self.job_app2 = JobApplication.objects.create(
+            user=self.user,
             company="Company B",
             position="Engineer",
             status="Interviewing",
@@ -45,11 +65,11 @@ class APIEndpointTests(TestCase):
             'job_description': 'Test description',
             'contact_email': 'hr@newcompany.com'
         }
-        response = self.client.post(url, data, content_type='application/json')
+        response = self.client.post(url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('message', response.json())
-        self.assertEqual(JobApplication.objects.count(), 3)
+        self.assertEqual(JobApplication.objects.filter(user=self.user).count(), 3)
     
     def test_add_job_application_with_interview(self):
         """Test adding job application with interview"""
@@ -63,12 +83,12 @@ class APIEndpointTests(TestCase):
             'interview_time': '10:00',
             'interview_type': 'HR'
         }
-        response = self.client.post(url, data, content_type='application/json')
+        response = self.client.post(url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         # Check interview was created
-        job = JobApplication.objects.get(company='Interview Company')
+        job = JobApplication.objects.get(company='Interview Company', user=self.user)
         interview = Interview.objects.filter(job_application=job).first()
         self.assertIsNotNone(interview)
         self.assertEqual(interview.type, 'HR')
@@ -139,11 +159,7 @@ class APIEndpointTests(TestCase):
             'status': 'Applied',
             'applied_date': date.today().isoformat()
         }
-        response = self.client.put(
-            url, 
-            json.dumps(data), 
-            content_type='application/json'
-        )
+        response = self.client.put(url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -156,11 +172,7 @@ class APIEndpointTests(TestCase):
         """Test partial update with PATCH"""
         url = reverse('update_job_application', args=[self.job_app1.id])
         data = {'status': 'Ghosted'}
-        response = self.client.patch(
-            url,
-            json.dumps(data),
-            content_type='application/json'
-        )
+        response = self.client.patch(url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -182,11 +194,7 @@ class APIEndpointTests(TestCase):
             'interview_time': '14:30',
             'interview_type': 'Behavioral'
         }
-        response = self.client.put(
-            url,
-            json.dumps(data),
-            content_type='application/json'
-        )
+        response = self.client.put(url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -212,13 +220,44 @@ class APIEndpointTests(TestCase):
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def tearDown(self):
+        """Clean up test data after each test"""
+        # Delete all job applications (cascades to interviews)
+        JobApplication.objects.filter(user=self.user).delete()
+        # Delete uploaded files
+        self._cleanup_media_files()
+        # Note: Django's TestCase automatically rolls back database transactions,
+        # but we explicitly clean up files since they're stored on the filesystem
+    
+    def _cleanup_media_files(self):
+        """Remove uploaded files from media directory"""
+        # Get all job applications with resumes
+        apps_with_resumes = JobApplication.objects.filter(resume__isnull=False)
+        for app in apps_with_resumes:
+            if app.resume:
+                file_path = app.resume.path
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                    except OSError:
+                        pass  # File might already be deleted
 
 
 class FileUploadTest(TestCase):
     """Test cases for file upload functionality"""
     
     def setUp(self):
-        self.client = Client()
+        self.client = APIClient()
+        # Create test user
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        # Authenticate the client
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     
     def test_upload_resume(self):
         """Test uploading resume file"""
@@ -248,25 +287,75 @@ class FileUploadTest(TestCase):
         job = JobApplication.objects.get(company='File Upload Company')
         self.assertIsNotNone(job.resume)
         self.assertTrue(job.resume.name.endswith('.pdf'))
+    
+    def tearDown(self):
+        """Clean up test data and uploaded files after each test"""
+        # Delete all job applications (cascades to interviews)
+        JobApplication.objects.filter(user=self.user).delete()
+        # Delete uploaded files
+        self._cleanup_media_files()
+    
+    def _cleanup_media_files(self):
+        """Remove uploaded files from media directory"""
+        # Get all job applications with resumes
+        apps_with_resumes = JobApplication.objects.filter(resume__isnull=False)
+        for app in apps_with_resumes:
+            if app.resume:
+                file_path = app.resume.path
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                    except OSError:
+                        pass  # File might already be deleted
 
 
 class EdgeCaseTests(TestCase):
     """Test edge cases and error handling"""
     
     def setUp(self):
-        self.client = Client()
+        self.client = APIClient()
+        # Create test user
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        # Authenticate the client
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     
     def test_add_application_missing_required_fields(self):
         """Test adding application without required fields"""
         url = reverse('add_job_application')
         data = {'company': 'Incomplete Company'}
-        response = self.client.post(url, data, content_type='application/json')
+        response = self.client.post(url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def tearDown(self):
+        """Clean up test data after each test"""
+        # Delete all job applications (cascades to interviews)
+        JobApplication.objects.filter(user=self.user).delete()
+        # Delete uploaded files
+        self._cleanup_media_files()
+    
+    def _cleanup_media_files(self):
+        """Remove uploaded files from media directory"""
+        # Get all job applications with resumes
+        apps_with_resumes = JobApplication.objects.filter(resume__isnull=False)
+        for app in apps_with_resumes:
+            if app.resume:
+                file_path = app.resume.path
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                    except OSError:
+                        pass  # File might already be deleted
     
     def test_past_interview_date(self):
         """Test that past interviews don't appear in upcoming"""
         job = JobApplication.objects.create(
+            user=self.user,
             company="Past Interview",
             position="Engineer",
             status="Interviewing"
@@ -288,6 +377,7 @@ class EdgeCaseTests(TestCase):
     def test_multiple_interviews_limit(self):
         """Test upcoming interviews returns max 5 interviews"""
         job = JobApplication.objects.create(
+            user=self.user,
             company="Multiple Interviews",
             position="Engineer",
             status="Interviewing"

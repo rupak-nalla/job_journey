@@ -147,20 +147,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
 # In development, allow all origins for easier debugging
-# In production, allow the production frontend origin
+# In production, use CORS_ALLOWED_ORIGINS from environment variable
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
-    # Production: Allow the production frontend origin
-    CORS_ALLOWED_ORIGINS = [
-        'https://job-tracker-dnai.onrender.com',
-    ]
-    # Also allow any origins specified in environment variable
+    # Production: Get allowed origins from environment variable
     cors_origins_env = os.getenv('CORS_ALLOWED_ORIGINS')
     if cors_origins_env:
-        # Merge environment origins with hardcoded production origin
-        env_origins = [origin.strip() for origin in cors_origins_env.split(',')]
-        CORS_ALLOWED_ORIGINS = list(set(CORS_ALLOWED_ORIGINS + env_origins))
+        CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins_env.split(',')]
+    else:
+        # Default: allow all origins (not recommended for production, but safe if behind proxy)
+        CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 

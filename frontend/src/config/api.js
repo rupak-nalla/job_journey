@@ -17,7 +17,13 @@ const getApiBaseUrl = () => {
   // This works when frontend and backend are served through the same proxy
   if (!apiUrl) {
     // In production, if no API URL is set, assume same origin (nginx proxy)
-    if (process.env.NODE_ENV === 'production') {
+    // Check if we're running in production by checking the hostname
+    // If it's not localhost/127.0.0.1, assume production
+    const isProduction = window.location.hostname !== 'localhost' && 
+                         window.location.hostname !== '127.0.0.1' &&
+                         !window.location.hostname.startsWith('192.168.');
+    
+    if (isProduction || process.env.NODE_ENV === 'production') {
       return ''; // Empty string = relative URLs (same origin)
     }
     
@@ -36,30 +42,37 @@ const getApiBaseUrl = () => {
   return apiUrl;
 };
 
-export const API_BASE_URL = getApiBaseUrl();
+// Helper to get base URL at runtime (evaluates each time)
+const getBaseUrl = () => {
+  return getApiBaseUrl();
+};
 
+// Create API_ENDPOINTS with getters that evaluate at runtime
 export const API_ENDPOINTS = {
   // Authentication
-  REGISTER: `${API_BASE_URL}/api/auth/register/`,
-  LOGIN: `${API_BASE_URL}/api/auth/login/`,
-  LOGOUT: `${API_BASE_URL}/api/auth/logout/`,
-  GET_USER: `${API_BASE_URL}/api/auth/user/`,
-  REFRESH_TOKEN: `${API_BASE_URL}/api/auth/refresh/`,
+  get REGISTER() { return `${getBaseUrl()}/api/auth/register/`; },
+  get LOGIN() { return `${getBaseUrl()}/api/auth/login/`; },
+  get LOGOUT() { return `${getBaseUrl()}/api/auth/logout/`; },
+  get GET_USER() { return `${getBaseUrl()}/api/auth/user/`; },
+  get REFRESH_TOKEN() { return `${getBaseUrl()}/api/auth/refresh/`; },
   
   // Job Applications
-  JOB_STATS: `${API_BASE_URL}/api/job-stats/`,
-  RECENT_APPLICATIONS: `${API_BASE_URL}/api/recent-applications/`,
-  UPCOMING_INTERVIEWS: `${API_BASE_URL}/api/upcoming-interviews/`,
-  INTERVIEW_STATS: `${API_BASE_URL}/api/interview-stats/`,
-  ADD_JOB_APPLICATION: `${API_BASE_URL}/api/add-job-application/`,
-  GET_JOB_APPLICATION: (id) => `${API_BASE_URL}/api/applications/${id}/`,
-  UPDATE_JOB_APPLICATION: (id) => `${API_BASE_URL}/api/applications/${id}/update/`,
-  DELETE_JOB_APPLICATION: (id) => `${API_BASE_URL}/api/applications/${id}/delete/`,
-  MEDIA_BASE: API_BASE_URL,
+  get JOB_STATS() { return `${getBaseUrl()}/api/job-stats/`; },
+  get RECENT_APPLICATIONS() { return `${getBaseUrl()}/api/recent-applications/`; },
+  get UPCOMING_INTERVIEWS() { return `${getBaseUrl()}/api/upcoming-interviews/`; },
+  get INTERVIEW_STATS() { return `${getBaseUrl()}/api/interview-stats/`; },
+  get ADD_JOB_APPLICATION() { return `${getBaseUrl()}/api/add-job-application/`; },
+  GET_JOB_APPLICATION: (id) => `${getBaseUrl()}/api/applications/${id}/`,
+  UPDATE_JOB_APPLICATION: (id) => `${getBaseUrl()}/api/applications/${id}/update/`,
+  DELETE_JOB_APPLICATION: (id) => `${getBaseUrl()}/api/applications/${id}/delete/`,
+  get MEDIA_BASE() { return getBaseUrl(); },
   
   // Support
-  SUBMIT_SUPPORT: `${API_BASE_URL}/api/support/`,
+  get SUBMIT_SUPPORT() { return `${getBaseUrl()}/api/support/`; },
 };
+
+// Export API_BASE_URL as a getter function for backward compatibility
+export const API_BASE_URL = getBaseUrl();
 
 // Helper function to get auth headers
 export const getAuthHeaders = (includeContentType = true) => {

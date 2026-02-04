@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import  delete_job_application,update_job_application,get_job_application,job_stats, recent_applications, upcoming_interviews,add_job_application,interview_stats
 from .auth_views import register, login, logout, get_user, refresh_token
+from .support_views import submit_support_request
 
 router = DefaultRouter()
 # router.register(r'jobs', JobApplicationViewSet)
@@ -32,4 +33,7 @@ urlpatterns = [
     path('api/applications/<int:pk>/', get_job_application, name='get_job_application'),
     path('api/applications/<int:pk>/update/', update_job_application, name='update_job_application'),
     path('api/applications/<int:pk>/delete/', delete_job_application, name='delete_job_application'),
+    
+    # Support/Contact endpoint
+    path('api/support/', submit_support_request, name='submit_support_request'),
 ]

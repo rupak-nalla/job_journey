@@ -139,10 +139,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = os.getenv(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://127.0.0.1:3000,http://192.168.1.5:3000'
-).split(',')
+# In development, allow all origins for easier debugging
+# In production, use CORS_ALLOWED_ORIGINS with specific domains
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = os.getenv(
+        'CORS_ALLOWED_ORIGINS',
+        'http://localhost:3000,http://127.0.0.1:3000,http://192.168.1.5:3000'
+    ).split(',')
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -198,6 +203,25 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
 }
+
+# Email Settings
+# Support email (recipient for support requests)
+SUPPORT_EMAIL = os.getenv('SUPPORT_EMAIL', 'rupaknalla1034@gmail.com')
+
+# Email backend configuration
+# Using SMTP backend to send emails via Gmail
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend'  # SMTP for sending emails
+)
+
+# SMTP Configuration for Gmail
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'rupaknalla1034@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'avaw lfvt rgiw wsoj')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'rupaknalla1034@gmail.com')
 
 # Security Settings (Production)
 if not DEBUG:

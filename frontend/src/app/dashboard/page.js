@@ -31,6 +31,7 @@ const Icon = ({ name, size = 18, color = "currentColor", className = "" }) => {
     check:     <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>,
     users:     <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
     eye:       <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></>,
+    mail:      <><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></>,
     edit:      <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></>,
     trash:     <><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></>,
     plus:      <><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></>,
@@ -39,6 +40,7 @@ const Icon = ({ name, size = 18, color = "currentColor", className = "" }) => {
     arrow:     <><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></>,
     alert:     <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></>,
     loader:    <><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="32" strokeDashoffset="32"><animate attributeName="stroke-dasharray" dur="2s" values="0 32;16 16;0 32;0 32" repeatCount="indefinite" /><animate attributeName="stroke-dashoffset" dur="2s" values="0;-16;-32;-32" repeatCount="indefinite" /></circle></>,
+    x:         <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>,
   };
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -77,6 +79,15 @@ export default function JobTrackingDashboard() {
     time: "10:00",
     type: "Technical",
   });
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [supportFormData, setSupportFormData] = useState({
+    name: user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.username || '',
+    email: user?.email || '',
+    subject: '',
+    message: '',
+  });
+  const [isSubmittingSupport, setIsSubmittingSupport] = useState(false);
+  const [supportSubmitStatus, setSupportSubmitStatus] = useState({ success: false, error: '' });
 
   const recent = apps.slice(0, 5);
 
@@ -94,6 +105,18 @@ export default function JobTrackingDashboard() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, authLoading]);
+
+  // Update support form data when user changes
+  useEffect(() => {
+    if (user) {
+      setSupportFormData({
+        name: user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username || '',
+        email: user.email || '',
+        subject: '',
+        message: '',
+      });
+    }
+  }, [user]);
 
   // Show loading while checking authentication
   if (authLoading) {
@@ -236,6 +259,53 @@ export default function JobTrackingDashboard() {
     } catch (err) {
       console.error("Error updating status:", err);
       alert("Failed to update status. Please try again.");
+    }
+  };
+
+  const handleSupportChange = (e) => {
+    const { name, value } = e.target;
+    setSupportFormData({ ...supportFormData, [name]: value });
+    if (supportSubmitStatus.error) {
+      setSupportSubmitStatus({ success: false, error: '' });
+    }
+  };
+
+  const handleSupportSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingSupport(true);
+    setSupportSubmitStatus({ success: false, error: '' });
+
+    try {
+      const response = await fetch(API_ENDPOINTS.SUBMIT_SUPPORT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(supportFormData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSupportSubmitStatus({ success: true, error: '' });
+        setSupportFormData({
+          name: user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.username || '',
+          email: user?.email || '',
+          subject: '',
+          message: '',
+        });
+        setTimeout(() => {
+          setShowSupportModal(false);
+          setSupportSubmitStatus({ success: false, error: '' });
+        }, 2000);
+      } else {
+        setSupportSubmitStatus({ success: false, error: data.error || 'Failed to submit support request. Please try again.' });
+      }
+    } catch (error) {
+      console.error('Error submitting support request:', error);
+      setSupportSubmitStatus({ success: false, error: 'Network error. Please check your connection and try again.' });
+    } finally {
+      setIsSubmittingSupport(false);
     }
   };
 
@@ -431,7 +501,20 @@ export default function JobTrackingDashboard() {
           <div>
             {recent.length > 0 ? (
               recent.map((app) => (
-                <div key={app.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 24px", borderBottom: "1px solid #f5f5f5" }}>
+                <div
+                  key={app.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "14px 24px",
+                    borderBottom: "1px solid #f5f5f5",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => router.push(`/application/${app.id}`)}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#f9fafb"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                >
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: "#1a1a2e", marginBottom: 2 }}>{app.company}</p>
                     <p style={{ fontSize: 12, color: "#9ca3af" }}>{app.position} · {app.applied_date || app.date}</p>
@@ -445,8 +528,8 @@ export default function JobTrackingDashboard() {
                 <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 12 }}>No applications yet</p>
               </div>
             )}
-                </div>
-              </div>
+          </div>
+        </div>
               
         {/* Upcoming Interviews */}
         <div style={S.card}>
@@ -506,16 +589,57 @@ export default function JobTrackingDashboard() {
           </thead>
           <tbody>
             {apps.length > 0 ? apps.map((app) => (
-              <tr key={app.id} style={{ transition: "background 0.15s" }}
-                onMouseEnter={e => e.currentTarget.style.background = "#fafafa"}
-                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+              <tr
+                key={app.id}
+                style={{ transition: "background 0.15s", cursor: "pointer" }}
+                onClick={() => router.push(`/application/${app.id}`)}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#fafafa"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
               >
-                <td style={S.td}><span style={{ fontWeight: 600, color: "#1a1a2e" }}>{app.company}</span></td>
-                <td style={S.td}>{app.position}</td>
+                <td style={S.td}>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); router.push(`/application/${app.id}`); }}
+                    style={{
+                      border: "none",
+                      background: "none",
+                      padding: 0,
+                      margin: 0,
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      color: "#1a1a2e",
+                      textAlign: "left",
+                    }}
+                  >
+                    {app.company}
+                  </button>
+                </td>
+                <td style={S.td}>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); router.push(`/application/${app.id}`); }}
+                    style={{
+                      border: "none",
+                      background: "none",
+                      padding: 0,
+                      margin: 0,
+                      cursor: "pointer",
+                      color: "#4b5563",
+                      textAlign: "left",
+                    }}
+                  >
+                    {app.position}
+                  </button>
+                </td>
                 <td style={S.td}><span style={{ color: "#9ca3af", fontSize: 12 }}>{app.applied_date}</span></td>
                 <td style={S.td}>
                   {app.resume
-                    ? <a href={app.resume.startsWith("http") ? app.resume : `${API_ENDPOINTS.MEDIA_BASE}${app.resume}`} target="_blank" rel="noopener noreferrer">
+                    ? <a
+                        href={app.resume.startsWith("http") ? app.resume : `${API_ENDPOINTS.MEDIA_BASE}${app.resume}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div style={{ width: 30, height: 30, borderRadius: 6, background: "#eef2ff", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name="file" size={15} color="#4f46e5" /></div>
                       </a>
                     : <span style={{ color: "#d1d5db", fontSize: 18 }}>—</span>
@@ -523,7 +647,12 @@ export default function JobTrackingDashboard() {
                 </td>
                 <td style={S.td}>
                   {editingId === app.id ? (
-                    <select autoFocus defaultValue={app.status} onBlur={() => setEditingId(null)} onChange={e => handleStatusChange(app.id, e.target.value)}
+                    <select
+                      autoFocus
+                      defaultValue={app.status}
+                      onBlur={() => setEditingId(null)}
+                      onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
                       style={{ fontSize: 12, border: "1px solid #e0e0e0", borderRadius: 6, padding: "5px 10px", outline: "none", background: "#fff" }}>
                       <option value="Applied">Applied</option>
                       <option value="Interviewing">Interviewing</option>
@@ -532,14 +661,19 @@ export default function JobTrackingDashboard() {
                       <option value="Offered">Offered</option>
                     </select>
                   ) : (
-                    <span onClick={() => setEditingId(app.id)} style={{ cursor: "pointer" }}><StatusBadge status={app.status} /></span>
+                    <span
+                      onClick={(e) => { e.stopPropagation(); setEditingId(app.id); }}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <StatusBadge status={app.status} />
+                    </span>
                   )}
                           </td>
                 <td style={S.td}>
                   <div style={{ display: "flex", gap: 4 }}>
                     <button 
                       style={S.actionBtn("#4f46e5")} 
-                      onClick={() => router.push(`/application/${app.id}`)}
+                      onClick={(e) => { e.stopPropagation(); router.push(`/application/${app.id}`); }}
                       onMouseEnter={e => e.currentTarget.style.background = "#eef2ff"} 
                       onMouseLeave={e => e.currentTarget.style.background = "transparent"} 
                       title="View"
@@ -547,20 +681,11 @@ export default function JobTrackingDashboard() {
                       <Icon name="eye" size={16} color="#4f46e5" />
                     </button>
                     <button 
-                      style={S.actionBtn("#16a34a")} 
-                      onClick={() => router.push(`/application/${app.id}`)}
-                      onMouseEnter={e => e.currentTarget.style.background = "#f0fdf4"} 
-                      onMouseLeave={e => e.currentTarget.style.background = "transparent"} 
-                      title="Edit"
-                    >
-                      <Icon name="edit" size={16} color="#16a34a" />
-                    </button>
-                    <button 
                       style={S.actionBtn("#ef4444")} 
+                      onClick={(e) => { e.stopPropagation(); setDeleteConfirm(app.id); }}
                       onMouseEnter={e => e.currentTarget.style.background = "#fef2f2"} 
                       onMouseLeave={e => e.currentTarget.style.background = "transparent"} 
-                      title="Delete" 
-                      onClick={() => setDeleteConfirm(app.id)}
+                      title="Delete"
                     >
                       <Icon name="trash" size={16} color="#ef4444" />
                               </button>
@@ -827,6 +952,212 @@ export default function JobTrackingDashboard() {
           </div>
         </div>
       )}
+
+      {/* Support Modal */}
+      {showSupportModal && (
+        <div style={S.overlay} onClick={() => setShowSupportModal(false)}>
+          <div style={{ ...S.modal, maxWidth: 500 }} onClick={e => e.stopPropagation()}>
+            {/* Header with centered title and close button */}
+            <div style={{ position: "relative", marginBottom: 24 }}>
+              <button
+                onClick={() => setShowSupportModal(false)}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  background: "#f3f4f6",
+                  border: "1px solid #e5e7eb",
+                  cursor: "pointer",
+                  padding: "8px 10px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 8,
+                  zIndex: 10,
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = "#e5e7eb";
+                  e.currentTarget.style.borderColor = "#d1d5db";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = "#f3f4f6";
+                  e.currentTarget.style.borderColor = "#e5e7eb";
+                }}
+                aria-label="Close"
+                title="Close"
+              >
+                <Icon name="x" size={18} color="#6b7280" />
+              </button>
+              <div style={{ textAlign: "center" }}>
+                <h3 style={{ ...S.modalTitle, marginBottom: 4, textAlign: "center" }}>Contact Support</h3>
+                <p style={{ ...S.modalDesc, textAlign: "center" }}>Report issues or get help with JobTracker</p>
+              </div>
+            </div>
+
+            {supportSubmitStatus.success && (
+              <div style={{
+                background: "#f0fdf4",
+                border: "1px solid #bbf7d0",
+                borderRadius: 8,
+                padding: "12px",
+                marginBottom: 20,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                fontSize: 14,
+                color: "#166534",
+                fontWeight: 500,
+              }}>
+                <Icon name="check" size={18} color="#166534" />
+                <span>Your support request has been submitted successfully!</span>
+              </div>
+            )}
+
+            {supportSubmitStatus.error && (
+              <div style={{
+                background: "#fee2e2",
+                border: "1px solid #fecaca",
+                borderRadius: 8,
+                padding: "12px",
+                marginBottom: 20,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                fontSize: 14,
+                color: "#dc2626",
+                fontWeight: 500,
+              }}>
+                <Icon name="alert" size={18} color="#dc2626" />
+                <span>{supportSubmitStatus.error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSupportSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6, textAlign: "left" }}>Name *</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={supportFormData.name}
+                  onChange={handleSupportChange}
+                  required
+                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6, textAlign: "left" }}>Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={supportFormData.email}
+                  onChange={handleSupportChange}
+                  required
+                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6, textAlign: "left" }}>Subject</label>
+                <input
+                  type="text"
+                  name="subject"
+                  value={supportFormData.subject}
+                  onChange={handleSupportChange}
+                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
+                  placeholder="Brief description"
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6, textAlign: "left" }}>Message *</label>
+                <textarea
+                  name="message"
+                  value={supportFormData.message}
+                  onChange={handleSupportChange}
+                  required
+                  rows={5}
+                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box", resize: "vertical" }}
+                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
+                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
+                  placeholder="Describe your issue or question..."
+                />
+              </div>
+
+              <div style={S.modalBtns}>
+                <button
+                  type="button"
+                  style={{ ...S.btnGhost, display: "flex", alignItems: "center", gap: 6 }}
+                  onClick={() => setShowSupportModal(false)}
+                >
+                  <Icon name="x" size={14} color="#374151" />
+                  <span>Close</span>
+                </button>
+                <button
+                  type="submit"
+                  style={{ ...S.btnDanger, display: "flex", alignItems: "center", gap: 6 }}
+                  disabled={isSubmittingSupport}
+                  onMouseEnter={e => !isSubmittingSupport && (e.currentTarget.style.opacity = "0.9")}
+                  onMouseLeave={e => !isSubmittingSupport && (e.currentTarget.style.opacity = "1")}
+                >
+                  {isSubmittingSupport ? (
+                    <>
+                      <Icon name="loader" size={14} color="#fff" />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="mail" size={14} color="#fff" />
+                      <span>Send</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Support Bubble */}
+      <button
+        onClick={() => setShowSupportModal(true)}
+        style={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          border: "none",
+          boxShadow: "0 8px 24px rgba(102, 126, 234, 0.4)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+          transition: "all 0.3s",
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.transform = "scale(1.1)";
+          e.currentTarget.style.boxShadow = "0 12px 32px rgba(102, 126, 234, 0.5)";
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.boxShadow = "0 8px 24px rgba(102, 126, 234, 0.4)";
+        }}
+        title="Contact Support"
+        aria-label="Contact Support"
+      >
+        <Icon name="mail" size={24} color="#fff" />
+      </button>
     </div>
   );
 }

@@ -2,22 +2,14 @@
 // In production, these should be set via environment variables
 
 const getApiBaseUrl = () => {
-  // Check if we're in the browser
-  if (typeof window !== 'undefined') {
-    // Use the same origin in production, or localhost in development
-    const hostname = window.location.hostname;
-    
-    // If running on localhost or 127.0.0.1, use localhost:8000
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-    }
-    
-    // In production, use the same origin or configured API URL
-    return process.env.NEXT_PUBLIC_API_URL || `${window.location.protocol}//${hostname}:8000`;
+  // Always prefer an explicit environment variable if provided
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
   }
-  
-  // Server-side fallback
-  return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
+  // Default for local development: Django running on localhost:8000
+  // This ensures requests go to the backend even when the frontend runs on a different host/port.
+  return 'http://127.0.0.1:8000';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
@@ -40,6 +32,9 @@ export const API_ENDPOINTS = {
   UPDATE_JOB_APPLICATION: (id) => `${API_BASE_URL}/api/applications/${id}/update/`,
   DELETE_JOB_APPLICATION: (id) => `${API_BASE_URL}/api/applications/${id}/delete/`,
   MEDIA_BASE: API_BASE_URL,
+  
+  // Support
+  SUBMIT_SUPPORT: `${API_BASE_URL}/api/support/`,
 };
 
 // Helper function to get auth headers

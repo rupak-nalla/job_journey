@@ -3,6 +3,18 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
+// ─── Icons ───────────────────────────────────────────────
+const Icon = ({ name, size = 18, color = "currentColor" }) => {
+  const paths = {
+    briefcase: <><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></>,
+  };
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {paths[name]}
+    </svg>
+  );
+};
+
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     username: '',
@@ -89,15 +101,60 @@ export default function RegisterPage() {
     <div style={{
       minHeight: '100vh',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      flexDirection: 'column',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       padding: '20px',
     }}>
-      <div style={{
-        background: 'white',
+      {/* Navbar */}
+      <header style={{
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+        padding: '0 40px',
+        height: 72,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
         borderRadius: '16px',
-        padding: '40px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+        marginBottom: '20px',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          cursor: 'pointer',
+        }}
+        onClick={() => router.push('/')}
+        >
+          <div style={{
+            width: 34,
+            height: 34,
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Icon name="briefcase" size={17} color="#fff" />
+          </div>
+          <span style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e', letterSpacing: '-0.5px' }}>JobTracker</span>
+        </div>
+      </header>
+
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+      }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '16px',
+          padding: '40px',
         boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
         width: '100%',
         maxWidth: '500px',

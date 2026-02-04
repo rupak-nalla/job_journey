@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 // ─── Icons (matching dashboard) ───────────────────────────────
 const Icon = ({ name, size = 18, color = "currentColor" }) => {
   const paths = {
+    briefcase: <><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></>,
     arrowLeft: <><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></>,
     upload:    <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></>,
     check:     <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>,
@@ -346,6 +347,27 @@ export default function AddJobApplication() {
     <div style={S.root}>
       {/* Top Bar */}
       <header style={S.topbar}>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          cursor: "pointer",
+        }}
+        onClick={() => router.push("/dashboard")}
+        >
+          <div style={{
+            width: 34,
+            height: 34,
+            background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            <Icon name="briefcase" size={17} color="#fff" />
+          </div>
+          <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobTracker</span>
+        </div>
         <span
           style={S.backLink}
           onClick={() => router.push("/dashboard")}

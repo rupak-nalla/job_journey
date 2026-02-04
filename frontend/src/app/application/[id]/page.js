@@ -16,6 +16,7 @@ const getLocalISODate = (d = new Date()) => {
 // ─── Icons (matching dashboard) ───────────────────────────────
 const Icon = ({ name, size = 18, color = "currentColor", style }) => {
   const paths = {
+    briefcase: <><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></>,
     arrowLeft: <><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></>,
     edit:      <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></>,
     trash:     <><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></>,
@@ -47,6 +48,7 @@ export default function ApplicationDetail() {
     time: "10:00",
     type: "Technical",
   });
+  const [showJdModal, setShowJdModal] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -143,6 +145,12 @@ export default function ApplicationDetail() {
     try {
       const submitData = { ...formData };
       
+      // Don't send resume from this form (it's a file field handled on create).
+      // Sending a string path here causes "submitted data was not a file" errors on the backend.
+      if ("resume" in submitData) {
+        delete submitData.resume;
+      }
+      
       // Add interview data if status is Interviewing
       if (formData.status === "Interviewing" && showInterviewFields) {
         submitData.interview_date = interviewData.date;
@@ -228,7 +236,7 @@ export default function ApplicationDetail() {
     container: { maxWidth: 900, margin: "0 auto", padding: "0" },
     header: { marginBottom: 32, textAlign: "center" },
     title: { fontSize: 28, fontWeight: "bold", color: "#1f2937", marginBottom: 8, textAlign: "center" },
-    subtitle: { fontSize: 14, color: "#6b7280", textAlign: "center" },
+    subtitle: { fontSize: 14, color: "#f9fafb", textAlign: "center" },
     card: {
       background: "#fff",
       borderRadius: 16,
@@ -342,12 +350,82 @@ export default function ApplicationDetail() {
         ...s,
       };
     },
+    modalOverlay: {
+      position: "fixed",
+      inset: 0,
+      background: "rgba(15,23,42,0.6)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 100,
+      padding: 16,
+    },
+    modal: {
+      background: "#ffffff",
+      borderRadius: 16,
+      maxWidth: 720,
+      width: "100%",
+      maxHeight: "80vh",
+      boxShadow: "0 24px 80px rgba(15,23,42,0.35)",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+    },
+    modalHeader: {
+      padding: "20px 24px",
+      borderBottom: "1px solid #f3f4f6",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 12,
+    },
+    modalTitle: {
+      fontSize: 16,
+      fontWeight: 600,
+      color: "#111827",
+    },
+    modalBody: {
+      padding: "20px 24px 24px",
+      overflowY: "auto",
+    },
+    modalClose: {
+      border: "none",
+      background: "transparent",
+      cursor: "pointer",
+      padding: 4,
+      borderRadius: 999,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "#6b7280",
+    },
   };
 
   if (isLoading) {
     return (
       <div style={S.root}>
         <header style={S.topbar}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            cursor: "pointer",
+          }}
+          onClick={() => router.push("/dashboard")}
+          >
+            <div style={{
+              width: 34,
+              height: 34,
+              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <Icon name="briefcase" size={17} color="#fff" />
+            </div>
+            <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobTracker</span>
+          </div>
           <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
             <Icon name="arrowLeft" size={16} /> Back to Dashboard
           </span>
@@ -379,6 +457,27 @@ export default function ApplicationDetail() {
     return (
       <div style={S.root}>
         <header style={S.topbar}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            cursor: "pointer",
+          }}
+          onClick={() => router.push("/dashboard")}
+          >
+            <div style={{
+              width: 34,
+              height: 34,
+              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <Icon name="briefcase" size={17} color="#fff" />
+            </div>
+            <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobTracker</span>
+          </div>
           <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
             <Icon name="arrowLeft" size={16} /> Back to Dashboard
           </span>
@@ -405,6 +504,27 @@ export default function ApplicationDetail() {
     <div style={S.root}>
       {/* Top Bar */}
       <header style={S.topbar}>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          cursor: "pointer",
+        }}
+        onClick={() => router.push("/dashboard")}
+        >
+          <div style={{
+            width: 34,
+            height: 34,
+            background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            <Icon name="briefcase" size={17} color="#fff" />
+          </div>
+          <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobTracker</span>
+        </div>
         <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
           <Icon name="arrowLeft" size={16} /> Back to Dashboard
         </span>
@@ -584,6 +704,43 @@ export default function ApplicationDetail() {
                       </div>
                     </div>
                   )}
+                  {application.job_description && (
+                    <div style={S.detailItem}>
+                      <div style={S.detailIcon}><Icon name="file" size={16} color="#1a1a2e" /></div>
+                      <div>
+                        <p style={S.detailLabel}>Job Description</p>
+                        <button
+                          type="button"
+                          onClick={() => setShowJdModal(true)}
+                          style={{
+                            ...S.detailLink,
+                            background: "none",
+                            border: "none",
+                            padding: 0,
+                            cursor: "pointer",
+                          }}
+                        >
+                          View JD
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {application.company_website && (
+                    <div style={S.detailItem}>
+                      <div style={S.detailIcon}><Icon name="link" size={16} color="#1a1a2e" /></div>
+                      <div>
+                        <p style={S.detailLabel}>Job Posting</p>
+                        <a 
+                          href={application.company_website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={S.detailLink}
+                        >
+                          Open link
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -616,10 +773,64 @@ export default function ApplicationDetail() {
                 </div>
               )}
 
-              {application.job_description && (
+              {(application.interview_date || application.interview_time || application.interview_type) && (
                 <div style={S.section}>
-                  <h3 style={S.sectionTitle}>Job Description</h3>
-                  <p style={S.textBlock}>{application.job_description}</p>
+                  <h3 style={S.sectionTitle}>Interview Details</h3>
+                  <div style={S.detailsGrid}>
+                    {application.interview_date && (
+                      <div style={S.detailItem}>
+                        <div style={S.detailIcon}>
+                          <Icon name="calendar" size={16} color="#1a1a2e" />
+                        </div>
+                        <div>
+                          <p style={S.detailLabel}>Interview Date</p>
+                          <p style={S.detailValue}>{application.interview_date}</p>
+                        </div>
+                      </div>
+                    )}
+                    {(application.interview_time || application.interview_type) && (
+                      <div style={S.detailItem}>
+                        <div style={S.detailIcon}>
+                          <Icon name="calendar" size={16} color="#1a1a2e" />
+                        </div>
+                        <div>
+                          <p style={S.detailLabel}>Interview Info</p>
+                          <p style={S.detailValue}>
+                            {application.interview_time && `Time: ${application.interview_time}`}
+                            {application.interview_time && application.interview_type && " · "}
+                            {application.interview_type && `Type: ${application.interview_type}`}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {application.job_description && showJdModal && (
+                <div
+                  style={S.modalOverlay}
+                  onClick={() => setShowJdModal(false)}
+                >
+                  <div
+                    style={S.modal}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div style={S.modalHeader}>
+                      <h3 style={S.modalTitle}>Job Description</h3>
+                      <button
+                        type="button"
+                        onClick={() => setShowJdModal(false)}
+                        style={S.modalClose}
+                        aria-label="Close job description"
+                      >
+                        <Icon name="x" size={16} />
+                      </button>
+                    </div>
+                    <div style={S.modalBody}>
+                      <p style={S.textBlock}>{application.job_description}</p>
+                    </div>
+                  </div>
                 </div>
               )}
 

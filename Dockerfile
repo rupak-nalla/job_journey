@@ -6,7 +6,7 @@
 # ============================================================================
 FROM python:3.12-slim AS backend-builder
 
-WORKDIR /app/backend
+WORKDIR /backend
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -23,7 +23,7 @@ RUN pip install --upgrade pip && \
 # ============================================================================
 FROM node:18-alpine AS frontend-builder
 
-WORKDIR /app/frontend
+WORKDIR /frontend
 
 # Copy package files and install dependencies
 COPY frontend/package.json ./
@@ -43,7 +43,7 @@ RUN npm run build
 # ============================================================================
 FROM python:3.12-slim
 
-WORKDIR /app
+WORKDIR /workspace
 
 # Install system dependencies and Node.js for running Next.js
 RUN apt-get update && apt-get install -y \
@@ -65,16 +65,16 @@ COPY --from=backend-builder /usr/local/bin /usr/local/bin
 COPY backend/ ./backend/
 
 # Copy frontend build from builder
-COPY --from=frontend-builder /app/frontend/.next/standalone ./frontend/
-COPY --from=frontend-builder /app/frontend/.next/static ./frontend/.next/static
-COPY --from=frontend-builder /app/frontend/public ./frontend/public
+COPY --from=frontend-builder /frontend/.next/standalone ./frontend/
+COPY --from=frontend-builder /frontend/.next/static ./frontend/.next/static
+COPY --from=frontend-builder /frontend/public ./frontend/public
 
 # Create necessary directories
 RUN mkdir -p ./backend/media/resumes && \
     mkdir -p ./frontend
 
 # Set working directory to backend for migrations
-WORKDIR /app/backend
+WORKDIR /workspace/backend
 
 # Run migrations and collect static files
 RUN python manage.py collectstatic --noinput || true
@@ -97,7 +97,7 @@ BACKEND_PID=$!\n\
 \n\
 # Start frontend\n\
 echo "Starting frontend server..."\n\
-cd ./frontend\n\
+cd ../frontend\n\
 PORT=3000 HOSTNAME=0.0.0.0 node server.js &\n\
 FRONTEND_PID=$!\n\
 \n\

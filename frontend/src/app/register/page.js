@@ -413,6 +413,7 @@ export default function RegisterPage() {
             Sign in
           </a>
         </p>
+        </div>
       </div>
     </div>
   );

@@ -46,8 +46,14 @@ const getApiBaseUrl = () => {
     // Production/deployed environment (any hostname that's not localhost)
     // Since we're using nginx reverse proxy, use relative URLs (same origin)
     // This ensures requests go through the same domain and nginx routes them correctly
-    console.log('[API Config] Production detected, using relative URLs. Hostname:', hostname);
-    return ''; // Empty string = relative URLs (same origin)
+    const baseUrl = ''; // Empty string = relative URLs (same origin)
+    console.log('[API Config] Production detected!', {
+      hostname,
+      baseUrl,
+      usingRelativeUrls: true,
+      fullUrl: `${baseUrl}/api/auth/login/`
+    });
+    return baseUrl;
   }
 };
 
@@ -64,29 +70,31 @@ const getBaseUrl = () => {
   return getApiBaseUrl();
 };
 
-// Create API_ENDPOINTS with getters that evaluate at runtime
-export const API_ENDPOINTS = {
-  // Authentication
-  get REGISTER() { return `${getBaseUrl()}/api/auth/register/`; },
-  get LOGIN() { return `${getBaseUrl()}/api/auth/login/`; },
-  get LOGOUT() { return `${getBaseUrl()}/api/auth/logout/`; },
-  get GET_USER() { return `${getBaseUrl()}/api/auth/user/`; },
-  get REFRESH_TOKEN() { return `${getBaseUrl()}/api/auth/refresh/`; },
-  
-  // Job Applications
-  get JOB_STATS() { return `${getBaseUrl()}/api/job-stats/`; },
-  get RECENT_APPLICATIONS() { return `${getBaseUrl()}/api/recent-applications/`; },
-  get UPCOMING_INTERVIEWS() { return `${getBaseUrl()}/api/upcoming-interviews/`; },
-  get INTERVIEW_STATS() { return `${getBaseUrl()}/api/interview-stats/`; },
-  get ADD_JOB_APPLICATION() { return `${getBaseUrl()}/api/add-job-application/`; },
-  GET_JOB_APPLICATION: (id) => `${getBaseUrl()}/api/applications/${id}/`,
-  UPDATE_JOB_APPLICATION: (id) => `${getBaseUrl()}/api/applications/${id}/update/`,
-  DELETE_JOB_APPLICATION: (id) => `${getBaseUrl()}/api/applications/${id}/delete/`,
-  get MEDIA_BASE() { return getBaseUrl(); },
-  
-  // Support
-  get SUBMIT_SUPPORT() { return `${getBaseUrl()}/api/support/`; },
+// Create API_ENDPOINTS with getters that ALWAYS evaluate at runtime
+// Using Object.defineProperty to ensure getters are not optimized away
+const endpointDescriptors = {
+  REGISTER: { get: () => `${getBaseUrl()}/api/auth/register/`, enumerable: true, configurable: true },
+  LOGIN: { get: () => `${getBaseUrl()}/api/auth/login/`, enumerable: true, configurable: true },
+  LOGOUT: { get: () => `${getBaseUrl()}/api/auth/logout/`, enumerable: true, configurable: true },
+  GET_USER: { get: () => `${getBaseUrl()}/api/auth/user/`, enumerable: true, configurable: true },
+  REFRESH_TOKEN: { get: () => `${getBaseUrl()}/api/auth/refresh/`, enumerable: true, configurable: true },
+  JOB_STATS: { get: () => `${getBaseUrl()}/api/job-stats/`, enumerable: true, configurable: true },
+  RECENT_APPLICATIONS: { get: () => `${getBaseUrl()}/api/recent-applications/`, enumerable: true, configurable: true },
+  UPCOMING_INTERVIEWS: { get: () => `${getBaseUrl()}/api/upcoming-interviews/`, enumerable: true, configurable: true },
+  INTERVIEW_STATS: { get: () => `${getBaseUrl()}/api/interview-stats/`, enumerable: true, configurable: true },
+  ADD_JOB_APPLICATION: { get: () => `${getBaseUrl()}/api/add-job-application/`, enumerable: true, configurable: true },
+  MEDIA_BASE: { get: () => getBaseUrl(), enumerable: true, configurable: true },
+  SUBMIT_SUPPORT: { get: () => `${getBaseUrl()}/api/support/`, enumerable: true, configurable: true },
 };
+
+// Create the object with getters
+export const API_ENDPOINTS = Object.create(null);
+Object.defineProperties(API_ENDPOINTS, endpointDescriptors);
+
+// Add function-based endpoints
+API_ENDPOINTS.GET_JOB_APPLICATION = (id) => `${getBaseUrl()}/api/applications/${id}/`;
+API_ENDPOINTS.UPDATE_JOB_APPLICATION = (id) => `${getBaseUrl()}/api/applications/${id}/update/`;
+API_ENDPOINTS.DELETE_JOB_APPLICATION = (id) => `${getBaseUrl()}/api/applications/${id}/delete/`;
 
 // Export API_BASE_URL - this is evaluated at module load time for backward compatibility
 // Note: For runtime evaluation, use getBaseUrl() directly or access API_ENDPOINTS getters

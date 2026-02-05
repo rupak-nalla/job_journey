@@ -261,6 +261,24 @@ if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
 
 # Logging Configuration
 # Configure logging to output to stdout/stderr (captured by Render)
+# Also log to files when running tests
+
+# Create logs directory if it doesn't exist
+LOGS_DIR = BASE_DIR.parent / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
+# Determine if we're running tests
+import sys
+# Check if test command is in sys.argv (more reliable than checking modules)
+TESTING = (
+    len(sys.argv) > 1 and (
+        (sys.argv[0].endswith('manage.py') and 'test' in sys.argv[1:]) or
+        'pytest' in sys.argv[0] or
+        'test' in sys.argv[0] or
+        any('test' in arg for arg in sys.argv)
+    )
+)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -272,6 +290,11 @@ LOGGING = {
         'simple': {
             'format': '{levelname} {message}',
             'style': '{',
+        },
+        'test': {
+            'format': '{asctime} [{levelname}] {name}: {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },
     'handlers': {
@@ -299,6 +322,31 @@ LOGGING = {
         },
     },
 }
+
+# Add file handlers for tests
+if TESTING:
+    LOGGING['handlers']['test_file'] = {
+        'level': 'DEBUG',
+        'class': 'logging.FileHandler',
+        'filename': str(LOGS_DIR / 'tests.log'),
+        'formatter': 'test',
+        'mode': 'a',  # Append mode
+    }
+    LOGGING['handlers']['test_errors'] = {
+        'level': 'ERROR',
+        'class': 'logging.FileHandler',
+        'filename': str(LOGS_DIR / 'test_errors.log'),
+        'formatter': 'test',
+        'mode': 'a',
+    }
+    
+    # Add test file handlers to loggers
+    LOGGING['loggers']['django']['handlers'].append('test_file')
+    LOGGING['loggers']['applications']['handlers'].append('test_file')
+    LOGGING['root']['handlers'].append('test_file')
+    
+    # Add error handler to root logger
+    LOGGING['root']['handlers'].append('test_errors')
 
 # Security Settings (Production)
 if not DEBUG:

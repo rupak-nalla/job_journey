@@ -9,6 +9,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.exceptions import ValidationError
 from django.db import IntegrityError
 
@@ -253,8 +254,27 @@ def refresh_token(request):
         )
 
     # Use TokenRefreshSerializer to handle rotation and blacklist
-    # Let serializer validation errors propagate (DRF will handle them)
-    serializer = TokenRefreshSerializer(data={'refresh': refresh_token_value})
-    serializer.is_valid(raise_exception=True)
-    
-    return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    try:
+        serializer = TokenRefreshSerializer(data={'refresh': refresh_token_value})
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    except TokenError as e:
+        # Handle token errors (invalid/expired token)
+        logger.warning(f"Token refresh failed: {str(e)}")
+        return Response(
+            {'error': 'Token is invalid or expired'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    except ValidationError as e:
+        # Handle other validation errors
+        logger.warning(f"Token refresh validation failed: {str(e)}")
+        return Response(
+            {'error': 'Token is invalid or expired'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    except Exception:
+        logger.exception('Error during token refresh')
+        return Response(
+            {'error': 'An error occurred during token refresh'},
+            status=status.HTTP_400_BAD_REQUEST
+        )

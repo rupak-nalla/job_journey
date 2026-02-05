@@ -3,6 +3,8 @@ Tests for support/contact views
 """
 import threading
 import time
+from queue import Queue
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -327,10 +329,12 @@ class SupportViewsTestCase(TestCase):
         # Submit 5 concurrent requests
         threads = []
         responses = []
-        
+        responses_queue: Queue[tuple[int, object]] = Queue()
+
         def make_request(index):
             response = submit_request(index)
-            responses.append((index, response))
+            # Use a thread-safe queue to collect responses
+            responses_queue.put((index, response))
         
         for i in range(5):
             thread = threading.Thread(target=make_request, args=(i,))
@@ -343,7 +347,12 @@ class SupportViewsTestCase(TestCase):
         
         # Wait for background email threads
         time.sleep(1)
-        
+
+        # Drain queue into list and sort by index to keep deterministic order
+        while not responses_queue.empty():
+            responses.append(responses_queue.get())
+        responses.sort(key=lambda item: item[0])
+
         # All requests should succeed
         self.assertEqual(len(responses), 5)
         for index, response in responses:

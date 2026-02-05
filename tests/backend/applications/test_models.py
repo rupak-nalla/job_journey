@@ -6,12 +6,13 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from datetime import date, time, timedelta
 from applications.models import JobApplication, Interview
+from test_utils import JobApplicationTestMixin
 import os
 
 User = get_user_model()
 
 
-class JobApplicationModelTest(TestCase):
+class JobApplicationModelTest(JobApplicationTestMixin, TestCase):
     """Test cases for JobApplication model"""
     
     def setUp(self):
@@ -79,49 +80,8 @@ class JobApplicationModelTest(TestCase):
         self.assertIsNone(job.company_website)
         self.assertIsNone(job.notes)
     
-    def tearDown(self):
-        """Clean up test data after each test, even if test fails"""
-        try:
-            # Rollback any broken transaction first
-            transaction.rollback()
-        except Exception:
-            pass  # No transaction to rollback or already rolled back
-        
-        try:
-            # Delete all job applications (cascades to interviews)
-            # Use atomic block to ensure this works even after errors
-            with transaction.atomic():
-                JobApplication.objects.filter(user=self.user).delete()
-        except Exception:
-            # If deletion fails (e.g., transaction broken), Django's TestCase will handle it
-            pass
-        
-        # Always try to clean up files (filesystem operations don't depend on DB state)
-        try:
-            self._cleanup_media_files()
-        except Exception:
-            pass  # File cleanup failures shouldn't break tests
-    
-    def _cleanup_media_files(self):
-        """Remove uploaded files from media directory"""
-        try:
-            # Get all job applications with resumes
-            # Use atomic block to ensure query works even after errors
-            with transaction.atomic():
-                apps_with_resumes = JobApplication.objects.filter(resume__isnull=False)
-                for app in apps_with_resumes:
-                    if app.resume:
-                        file_path = app.resume.path
-                        if os.path.exists(file_path):
-                            try:
-                                os.remove(file_path)
-                            except OSError:
-                                pass  # File might already be deleted
-        except Exception:
-            pass  # If query fails, files will be cleaned up by Django's test database teardown
 
-
-class InterviewModelTest(TestCase):
+class InterviewModelTest(JobApplicationTestMixin, TestCase):
     """Test cases for Interview model"""
     
     def setUp(self):
@@ -174,43 +134,3 @@ class InterviewModelTest(TestCase):
         with self.assertRaises(Interview.DoesNotExist):
             Interview.objects.get(id=interview_id)
     
-    def tearDown(self):
-        """Clean up test data after each test, even if test fails"""
-        try:
-            # Rollback any broken transaction first
-            transaction.rollback()
-        except Exception:
-            pass  # No transaction to rollback or already rolled back
-        
-        try:
-            # Delete all job applications (cascades to interviews)
-            # Use atomic block to ensure this works even after errors
-            with transaction.atomic():
-                JobApplication.objects.filter(user=self.user).delete()
-        except Exception:
-            # If deletion fails (e.g., transaction broken), Django's TestCase will handle it
-            pass
-        
-        # Always try to clean up files (filesystem operations don't depend on DB state)
-        try:
-            self._cleanup_media_files()
-        except Exception:
-            pass  # File cleanup failures shouldn't break tests
-    
-    def _cleanup_media_files(self):
-        """Remove uploaded files from media directory"""
-        try:
-            # Get all job applications with resumes
-            # Use atomic block to ensure query works even after errors
-            with transaction.atomic():
-                apps_with_resumes = JobApplication.objects.filter(resume__isnull=False)
-                for app in apps_with_resumes:
-                    if app.resume:
-                        file_path = app.resume.path
-                        if os.path.exists(file_path):
-                            try:
-                                os.remove(file_path)
-                            except OSError:
-                                pass  # File might already be deleted
-        except Exception:
-            pass  # If query fails, files will be cleaned up by Django's test database teardown

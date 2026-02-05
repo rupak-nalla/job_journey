@@ -272,7 +272,7 @@ def refresh_token(request):
             {'error': 'Token is invalid or expired'},
             status=status.HTTP_401_UNAUTHORIZED
         )
-    except Exception as e:
+    except Exception:
         logger.exception('Error during token refresh')
         return Response(
             {'error': 'An error occurred during token refresh'},

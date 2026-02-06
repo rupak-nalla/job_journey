@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Job Application Tracker | Manage Your Job Search",
   description: "Track and manage your job applications with ease. Keep track of application status, interviews, and resumes all in one place.",
-  keywords: ["job tracker", "job application", "career", "job search", "application management"],
-  authors: [{ name: "Job Tracker" }],
+  keywords: ["job journey", "job application", "career", "job search", "application management"],
+  authors: [{ name: "JobJourney" }],
   openGraph: {
     title: "Job Application Tracker",
     description: "Track and manage your job applications with ease",

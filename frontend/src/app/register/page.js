@@ -141,7 +141,7 @@ export default function RegisterPage() {
           }}>
             <Icon name="briefcase" size={17} color="#fff" />
           </div>
-          <span style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e', letterSpacing: '-0.5px' }}>JobTracker</span>
+          <span style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e', letterSpacing: '-0.5px' }}>JobJourney</span>
         </div>
       </header>
 

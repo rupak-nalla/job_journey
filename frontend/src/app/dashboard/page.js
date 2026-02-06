@@ -732,7 +732,7 @@ export default function JobTrackingDashboard() {
       <header style={S.topbar}>
         <div style={S.logo}>
           <div style={S.logoIcon}><Icon name="briefcase" size={17} color="#fff" /></div>
-          <span style={S.logoText}>JobTracker</span>
+          <span style={S.logoText}>JobJourney</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {user && (

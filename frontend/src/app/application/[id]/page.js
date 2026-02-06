@@ -424,7 +424,7 @@ export default function ApplicationDetail() {
             }}>
               <Icon name="briefcase" size={17} color="#fff" />
             </div>
-            <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobTracker</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobJourney</span>
           </div>
           <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
             <Icon name="arrowLeft" size={16} /> Back to Dashboard
@@ -476,7 +476,7 @@ export default function ApplicationDetail() {
             }}>
               <Icon name="briefcase" size={17} color="#fff" />
             </div>
-            <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobTracker</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobJourney</span>
           </div>
           <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
             <Icon name="arrowLeft" size={16} /> Back to Dashboard
@@ -523,7 +523,7 @@ export default function ApplicationDetail() {
           }}>
             <Icon name="briefcase" size={17} color="#fff" />
           </div>
-          <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobTracker</span>
+          <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobJourney</span>
         </div>
         <span style={S.backLink} onClick={() => router.push("/dashboard")} onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")} onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}>
           <Icon name="arrowLeft" size={16} /> Back to Dashboard

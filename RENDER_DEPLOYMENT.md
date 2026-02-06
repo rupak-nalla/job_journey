@@ -1,6 +1,6 @@
 # Render Deployment Guide
 
-This guide explains how to deploy the Job Tracker application to Render.
+This guide explains how to deploy the JobJourney application to Render.
 
 ## Deployment Options
 

@@ -1,6 +1,6 @@
-# Job Tracker - Frontend
+# JobJourney - Frontend
 
-Frontend application for Job Tracker built with Next.js 15 and React 19.
+Frontend application for JobJourney built with Next.js 15 and React 19.
 
 ## Overview
 
@@ -73,7 +73,7 @@ frontend/
 - Interview scheduling
 - Resume upload
 - Support contact form
-- Consistent UI with JobTracker branding
+- Consistent UI with JobJourney branding
 
 ## Testing
 

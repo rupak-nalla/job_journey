@@ -1,6 +1,6 @@
 # Environment Variables Setup Guide
 
-This guide explains how to set up environment variables for the Job Tracker application.
+This guide explains how to set up environment variables for the JobJourney application.
 
 ## Files Created
 

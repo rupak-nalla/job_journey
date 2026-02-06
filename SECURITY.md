@@ -1,6 +1,6 @@
 # Security Guidelines
 
-This document outlines security best practices for the Job Tracker application.
+This document outlines security best practices for the JobJourney application.
 
 ## Environment Variables
 

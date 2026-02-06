@@ -10,7 +10,7 @@ A modern full-stack web application for tracking job applications, managing inte
 
 ## Overview
 
-Job Tracker is a comprehensive solution for managing your job search journey. Track applications, schedule interviews, upload resumes, and monitor your progress with an intuitive dashboard.
+JobJourney is a comprehensive solution for managing your job search journey. Track applications, schedule interviews, upload resumes, and monitor your progress with an intuitive dashboard.
 
 ### Key Features
 

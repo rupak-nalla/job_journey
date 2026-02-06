@@ -1,6 +1,6 @@
 # Tests Directory
 
-This directory contains all tests for the Job Tracker application, organized into backend and frontend subdirectories.
+This directory contains all tests for the JobJourney application, organized into backend and frontend subdirectories.
 
 ## Structure
 

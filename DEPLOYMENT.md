@@ -379,7 +379,7 @@ python manage.py createsuperuser
 6. **Create systemd service** (`/etc/systemd/system/job-tracker.service`):
 ```ini
 [Unit]
-Description=Job Tracker Gunicorn
+Description=JobJourney Gunicorn
 After=network.target
 
 [Service]
@@ -414,7 +414,7 @@ npm run build
 2. **Create systemd service** (`/etc/systemd/system/job-tracker-frontend.service`):
 ```ini
 [Unit]
-Description=Job Tracker Frontend
+Description=JobJourney Frontend
 After=network.target
 
 [Service]

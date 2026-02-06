@@ -1,4 +1,4 @@
-# Multi-stage build for Job Tracker full-stack application
+# Multi-stage build for JobJourney full-stack application
 # This Dockerfile builds both backend and frontend in a single container
 
 # ============================================================================

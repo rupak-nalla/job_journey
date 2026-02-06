@@ -218,7 +218,7 @@ export default function SupportPage() {
           }}>
             <Icon name="briefcase" size={17} color="#fff" />
           </div>
-          <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobTracker</span>
+          <span style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", letterSpacing: "-0.5px" }}>JobJourney</span>
         </div>
         <span
           style={S.backLink}
@@ -235,7 +235,7 @@ export default function SupportPage() {
         {/* Header */}
         <div style={S.header}>
           <h1 style={S.title}>Contact Support</h1>
-          <p style={S.subtitle}>Report issues or get help with JobTracker</p>
+          <p style={S.subtitle}>Report issues or get help with JobJourney</p>
         </div>
 
         {/* Form Card */}

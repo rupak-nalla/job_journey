@@ -141,9 +141,7 @@ npm run test:ci
 
 ## Deployment
 
-The application is configured for deployment on various platforms:
-- **Backend**: Deploy to Heroku, Railway, AWS, or any Python hosting service
-- **Frontend**: Deploy to Vercel, Netlify, or any Node.js hosting service
+- Deployed on **Render** using **Docker**, with the frontend and backend running as **separate Docker-based web services** for isolated builds and independent deployment.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 

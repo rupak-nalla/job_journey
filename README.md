@@ -73,8 +73,7 @@ JobJourney is a comprehensive solution for managing your job search journey. Tra
    ```
 
 4. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://127.0.0.1:8000
+   - https://job-journey-qcmc.onrender.com/login
 
 ## Project Structure
 

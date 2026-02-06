@@ -79,15 +79,6 @@ export default function JobTrackingDashboard() {
     time: "10:00",
     type: "Technical",
   });
-  const [showSupportModal, setShowSupportModal] = useState(false);
-  const [supportFormData, setSupportFormData] = useState({
-    name: user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.username || '',
-    email: user?.email || '',
-    subject: '',
-    message: '',
-  });
-  const [isSubmittingSupport, setIsSubmittingSupport] = useState(false);
-  const [supportSubmitStatus, setSupportSubmitStatus] = useState({ success: false, error: '' });
 
   const recent = apps.slice(0, 5);
 
@@ -105,18 +96,6 @@ export default function JobTrackingDashboard() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, authLoading]);
-
-  // Update support form data when user changes
-  useEffect(() => {
-    if (user) {
-      setSupportFormData({
-        name: user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username || '',
-        email: user.email || '',
-        subject: '',
-        message: '',
-      });
-    }
-  }, [user]);
 
   // Show loading while checking authentication
   if (authLoading) {
@@ -259,53 +238,6 @@ export default function JobTrackingDashboard() {
     } catch (err) {
       console.error("Error updating status:", err);
       alert("Failed to update status. Please try again.");
-    }
-  };
-
-  const handleSupportChange = (e) => {
-    const { name, value } = e.target;
-    setSupportFormData({ ...supportFormData, [name]: value });
-    if (supportSubmitStatus.error) {
-      setSupportSubmitStatus({ success: false, error: '' });
-    }
-  };
-
-  const handleSupportSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmittingSupport(true);
-    setSupportSubmitStatus({ success: false, error: '' });
-
-    try {
-      const response = await fetch(API_ENDPOINTS.SUBMIT_SUPPORT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(supportFormData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSupportSubmitStatus({ success: true, error: '' });
-        setSupportFormData({
-          name: user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.username || '',
-          email: user?.email || '',
-          subject: '',
-          message: '',
-        });
-        setTimeout(() => {
-          setShowSupportModal(false);
-          setSupportSubmitStatus({ success: false, error: '' });
-        }, 2000);
-      } else {
-        setSupportSubmitStatus({ success: false, error: data.error || 'Failed to submit support request. Please try again.' });
-      }
-    } catch (error) {
-      console.error('Error submitting support request:', error);
-      setSupportSubmitStatus({ success: false, error: 'Network error. Please check your connection and try again.' });
-    } finally {
-      setIsSubmittingSupport(false);
     }
   };
 
@@ -953,211 +885,16 @@ export default function JobTrackingDashboard() {
         </div>
       )}
 
-      {/* Support Modal */}
-      {showSupportModal && (
-        <div style={S.overlay} onClick={() => setShowSupportModal(false)}>
-          <div style={{ ...S.modal, maxWidth: 500 }} onClick={e => e.stopPropagation()}>
-            {/* Header with centered title and close button */}
-            <div style={{ position: "relative", marginBottom: 24 }}>
-              <button
-                onClick={() => setShowSupportModal(false)}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  background: "#f3f4f6",
-                  border: "1px solid #e5e7eb",
-                  cursor: "pointer",
-                  padding: "8px 10px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 8,
-                  zIndex: 10,
-                  transition: "all 0.2s",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = "#e5e7eb";
-                  e.currentTarget.style.borderColor = "#d1d5db";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = "#f3f4f6";
-                  e.currentTarget.style.borderColor = "#e5e7eb";
-                }}
-                aria-label="Close"
-                title="Close"
-              >
-                <Icon name="x" size={18} color="#6b7280" />
-              </button>
-              <div style={{ textAlign: "center" }}>
-                <h3 style={{ ...S.modalTitle, marginBottom: 4, textAlign: "center" }}>Contact Support</h3>
-                <p style={{ ...S.modalDesc, textAlign: "center" }}>Report issues or get help with JobTracker</p>
-              </div>
-            </div>
-
-            {supportSubmitStatus.success && (
-              <div style={{
-                background: "#f0fdf4",
-                border: "1px solid #bbf7d0",
-                borderRadius: 8,
-                padding: "12px",
-                marginBottom: 20,
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                fontSize: 14,
-                color: "#166534",
-                fontWeight: 500,
-              }}>
-                <Icon name="check" size={18} color="#166534" />
-                <span>Your support request has been submitted successfully!</span>
-              </div>
-            )}
-
-            {supportSubmitStatus.error && (
-              <div style={{
-                background: "#fee2e2",
-                border: "1px solid #fecaca",
-                borderRadius: 8,
-                padding: "12px",
-                marginBottom: 20,
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                fontSize: 14,
-                color: "#dc2626",
-                fontWeight: 500,
-              }}>
-                <Icon name="alert" size={18} color="#dc2626" />
-                <span>{supportSubmitStatus.error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSupportSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6, textAlign: "left" }}>Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={supportFormData.name}
-                  onChange={handleSupportChange}
-                  required
-                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
-                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6, textAlign: "left" }}>Email *</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={supportFormData.email}
-                  onChange={handleSupportChange}
-                  required
-                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
-                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6, textAlign: "left" }}>Subject</label>
-                <input
-                  type="text"
-                  name="subject"
-                  value={supportFormData.subject}
-                  onChange={handleSupportChange}
-                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
-                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
-                  placeholder="Brief description"
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#1a1a2e", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6, textAlign: "left" }}>Message *</label>
-                <textarea
-                  name="message"
-                  value={supportFormData.message}
-                  onChange={handleSupportChange}
-                  required
-                  rows={5}
-                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box", resize: "vertical" }}
-                  onFocus={(e) => (e.target.style.border = "1px solid #667eea")}
-                  onBlur={(e) => (e.target.style.border = "1px solid #d1d5db")}
-                  placeholder="Describe your issue or question..."
-                />
-              </div>
-
-              <div style={S.modalBtns}>
-                <button
-                  type="button"
-                  style={{ ...S.btnGhost, display: "flex", alignItems: "center", gap: 6 }}
-                  onClick={() => setShowSupportModal(false)}
-                >
-                  <Icon name="x" size={14} color="#374151" />
-                  <span>Close</span>
-                </button>
-                <button
-                  type="submit"
-                  style={{ ...S.btnDanger, display: "flex", alignItems: "center", gap: 6 }}
-                  disabled={isSubmittingSupport}
-                  onMouseEnter={e => !isSubmittingSupport && (e.currentTarget.style.opacity = "0.9")}
-                  onMouseLeave={e => !isSubmittingSupport && (e.currentTarget.style.opacity = "1")}
-                >
-                  {isSubmittingSupport ? (
-                    <>
-                      <Icon name="loader" size={14} color="#fff" />
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Icon name="mail" size={14} color="#fff" />
-                      <span>Send</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Floating Support Bubble */}
-      <button
-        onClick={() => setShowSupportModal(true)}
-        style={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-          width: 56,
-          height: 56,
-          borderRadius: "50%",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          border: "none",
-          boxShadow: "0 8px 24px rgba(102, 126, 234, 0.4)",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000,
-          transition: "all 0.3s",
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.transform = "scale(1.1)";
-          e.currentTarget.style.boxShadow = "0 12px 32px rgba(102, 126, 234, 0.5)";
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.transform = "scale(1)";
-          e.currentTarget.style.boxShadow = "0 8px 24px rgba(102, 126, 234, 0.4)";
-        }}
-        title="Contact Support"
-        aria-label="Contact Support"
+      {/*(support email) */}
+      <div
+        className="w-full mt-3 text-center text-sm text-gray-500 bg-gray-200 p-2 rounded-md"
       >
-        <Icon name="mail" size={24} color="#fff" />
-      </button>
+        <p>
+            <span className="font-bold">
+              for any queries, contact us at rupaknalla1034@gmail.com @copyright 2026
+            </span>
+        </p>
+      </div>
     </div>
   );
 }

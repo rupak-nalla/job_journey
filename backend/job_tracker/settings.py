@@ -225,44 +225,11 @@ if not SUPPORT_EMAIL:
         "Please set it in your .env file."
     )
 
-# Email backend configuration
-# Using SMTP backend to send emails via Gmail
-EMAIL_BACKEND = os.getenv(
-    'EMAIL_BACKEND',
-    'django.core.mail.backends.smtp.EmailBackend'  # SMTP for sending emails
-)
-
-# SMTP Configuration for Gmail
-# Email credentials must be set in environment variables - no defaults for security
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-SUPPORT_EMAIL = os.getenv('SUPPORT_EMAIL', DEFAULT_FROM_EMAIL)
-
-# Email connection timeout (in seconds) to prevent hanging on network issues
-# Default to 10 seconds - adjust if needed for slower networks
-EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
-
-# Validate email configuration if SMTP backend is used
-if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
-    if not EMAIL_HOST_USER:
-        raise ValueError(
-            "EMAIL_HOST_USER environment variable is not set. "
-            "Please set it in your .env file."
-        )
-    if not EMAIL_HOST_PASSWORD:
-        raise ValueError(
-            "EMAIL_HOST_PASSWORD environment variable is not set. "
-            "Please set it in your .env file."
-        )
-    if not DEFAULT_FROM_EMAIL:
-        raise ValueError(
-            "DEFAULT_FROM_EMAIL environment variable is not set. "
-            "Please set it in your .env file."
-        )
+# Email / support configuration
+# Note: The email-based support feature has been removed. These settings are
+# kept only for potential future use and to avoid hard failures if unset.
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '')
+SUPPORT_EMAIL = os.getenv('SUPPORT_EMAIL', '')
 
 # Logging Configuration
 # Configure logging to output to stdout/stderr (captured by Render)

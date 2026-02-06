@@ -16,7 +16,7 @@ Render supports two deployment approaches:
    - **Name**: `job-tracker-backend`
    - **Environment**: `Python 3`
    - **Build Command**: `cd backend && pip install -r requirements.txt`
-   - **Start Command**: `gunicorn --bind 0.0.0.0:$PORT job_tracker.wsgi:application`
+   - **Start Command**: `gunicorn --bind 0.0.0.0:$PORT job_journey.wsgi:application`
    - **Root Directory**: `backend`
 
 2. **Set Environment Variables**:

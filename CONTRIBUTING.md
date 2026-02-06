@@ -199,7 +199,7 @@ Before submitting a PR, test:
 job-tracker/
 ├── backend/           # Django backend
 │   ├── applications/  # Main app
-│   └── job_tracker/   # Settings
+│   └── job_journey/   # Settings
 └── frontend/          # Next.js frontend
     └── src/
         ├── app/       # Pages

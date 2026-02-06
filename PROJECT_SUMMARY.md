@@ -59,7 +59,7 @@ job-tracker/
 │   │   ├── serializers.py   # API serializers
 │   │   ├── views.py         # API views
 │   │   └── urls.py          # URL routing
-│   ├── job_tracker/         # Django project settings
+│   ├── job_journey/         # Django project settings
 │   ├── media/               # Uploaded files
 │   ├── requirements.txt     # Python dependencies
 │   ├── Dockerfile          # Backend container

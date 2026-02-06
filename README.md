@@ -48,7 +48,7 @@ JobJourney is a comprehensive solution for managing your job search journey. Tra
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd job_tracker
+   cd job_journey
    ```
 
 2. **Backend Setup**
@@ -78,10 +78,10 @@ JobJourney is a comprehensive solution for managing your job search journey. Tra
 ## Project Structure
 
 ```
-job_tracker/
+job_journey/
 ├── backend/              # Django REST API
 │   ├── applications/     # Main app (models, views, serializers)
-│   ├── job_tracker/      # Project settings
+│   ├── job_journey/      # Project settings
 │   └── manage.py
 ├── frontend/             # Next.js application
 │   ├── src/

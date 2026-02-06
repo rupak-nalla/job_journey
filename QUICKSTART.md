@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get the Job Application Tracker running in 5 minutes!
+Get the JobJourney running in 5 minutes!
 
 ## 🚀 Fastest Method: Docker
 
@@ -243,7 +243,7 @@ npm install
 If you see CORS errors in browser console:
 
 1. Check backend is running on http://127.0.0.1:8000
-2. Check `CORS_ALLOWED_ORIGINS` in `backend/job_tracker/settings.py`
+2. Check `CORS_ALLOWED_ORIGINS` in `backend/job_journey/settings.py`
 3. Restart backend server
 
 ### Database Errors

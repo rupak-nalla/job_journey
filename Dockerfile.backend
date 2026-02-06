@@ -32,4 +32,4 @@ EXPOSE 8000
 
 # Run migrations and start server
 CMD python manage.py migrate --noinput && \
-    gunicorn --bind 0.0.0.0:$PORT --workers 3 --timeout 120 job_tracker.wsgi:application
+    gunicorn --bind 0.0.0.0:$PORT --workers 3 --timeout 120 job_journey.wsgi:application

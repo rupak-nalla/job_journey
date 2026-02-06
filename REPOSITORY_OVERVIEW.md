@@ -71,7 +71,7 @@ job-tracker/
 │   │   ├── views.py               API views (8 endpoints)
 │   │   └── urls.py                URL routing
 │   │
-│   ├── 📁 job_tracker/            Project settings
+│   ├── 📁 job_journey/            Project settings
 │   │   ├── settings.py            Django configuration
 │   │   ├── urls.py                Main URL config
 │   │   └── wsgi.py                WSGI application

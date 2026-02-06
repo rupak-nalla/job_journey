@@ -94,7 +94,7 @@ python manage.py migrate --noinput || true
 
 # Start backend with gunicorn in background
 echo "Starting backend server..."
-gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 job_tracker.wsgi:application &
+gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 job_journey.wsgi:application &
 BACKEND_PID=$!
 
 # Wait for backend to be ready

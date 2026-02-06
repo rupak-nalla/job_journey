@@ -1,4 +1,4 @@
-# Job Application Tracker
+# JobJourney
 
 A modern full-stack web application for tracking job applications, managing interviews, and organizing your job search process.
 

@@ -24,7 +24,7 @@ Render supports two deployment approaches:
    SECRET_KEY=<your-secret-key>
    DEBUG=False
    ALLOWED_HOSTS=job-tracker-backend.onrender.com
-   CORS_ALLOWED_ORIGINS=https://job-tracker-frontend.onrender.com
+   CORS_ALLOWED_ORIGINS=https://job-journey-qcmc.onrender.com
    SUPPORT_EMAIL=your-email@gmail.com
    EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
    EMAIL_HOST=smtp.gmail.com
@@ -68,7 +68,7 @@ Render supports two deployment approaches:
    SECRET_KEY=<your-secret-key>
    DEBUG=False
    ALLOWED_HOSTS=job-tracker.onrender.com
-   CORS_ALLOWED_ORIGINS=https://job-tracker.onrender.com
+   CORS_ALLOWED_ORIGINS=https://job-journey-qcmc.onrender.com
    SUPPORT_EMAIL=your-email@gmail.com
    EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
    EMAIL_HOST=smtp.gmail.com
@@ -77,7 +77,7 @@ Render supports two deployment approaches:
    EMAIL_HOST_USER=your-email@gmail.com
    EMAIL_HOST_PASSWORD=<your-gmail-app-password>
    DEFAULT_FROM_EMAIL=your-email@gmail.com
-   NEXT_PUBLIC_API_URL=https://job-tracker.onrender.com
+   NEXT_PUBLIC_API_URL=https://job-journey-qcmc.onrender.com
    ```
 
 ## Build Fix for Render
@@ -98,7 +98,7 @@ The build should work now, but if you still see errors about `NEXT_PUBLIC_API_UR
 
 3. **Verify Services**:
    - Backend should be accessible at: `https://job-tracker-backend.onrender.com`
-   - Frontend should be accessible at: `https://job-tracker-frontend.onrender.com`
+   - Frontend should be accessible at: `https://job-journey-qcmc.onrender.com`
    - Test API endpoints: `https://job-tracker-backend.onrender.com/api/auth/register/`
 
 ## Troubleshooting
@@ -109,7 +109,7 @@ The build should work now, but if you still see errors about `NEXT_PUBLIC_API_UR
 
 ### CORS Errors
 - **Solution**: Make sure `CORS_ALLOWED_ORIGINS` in backend includes your frontend URL
-- Format: `https://job-tracker-frontend.onrender.com` (no trailing slash)
+- Format: `https://job-journey-qcmc.onrender.com` (no trailing slash)
 
 ### Database Connection Issues
 - **Solution**: Ensure PostgreSQL database is created and `DATABASE_URL` is set

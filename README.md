@@ -143,7 +143,6 @@ npm run test:ci
 
 - Deployed on **Render** using **Docker**, with the frontend and backend running as **separate Docker-based web services** for isolated builds and independent deployment.
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 
 ## Contributing
 

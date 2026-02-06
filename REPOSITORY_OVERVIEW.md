@@ -235,7 +235,7 @@ job-tracker/
 - Python 3.12+
 - Django 5.0.7
 - Django REST Framework 3.15.2
-- SQLite / PostgreSQL
+- SQLite
 - Gunicorn (production)
 
 ### Frontend

@@ -1,4 +1,4 @@
-# Contributing to Job Application Tracker
+# Contributing to JobJourney
 
 First off, thank you for considering contributing to Job Application Tracker! It's people like you that make this tool better for everyone.
 
